@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_app_application">
+    <sys_app_application action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <category display_value="">Custom Applications</category>
+        <description/>
+        <device_type>browser</device_type>
+        <hint/>
+        <name/>
+        <order/>
+        <roles>x_adosy_as.adobe_sign_admin,x_adosy_as.adobe_sign_manager,x_adosy_as.adobe_sign_sender,x_adosy_as.adobe_sign_signer</roles>
+        <sys_class_name>sys_app_application</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-08-12 15:28:45</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>ed4598281b4c1e1076f215ff034bcb91</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>DSinvoiceApproval</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
+        <sys_update_name>sys_app_application_ed4598281b4c1e1076f215ff034bcb91</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-08-12 15:28:45</sys_updated_on>
+        <title>DSinvoiceApproval</title>
+        <view_name/>
+    </sys_app_application>
+</record_update>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_dosny_dsinvoicea.AAIfileUploadUtility</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description>handles the file upload to the sys_attachment table. This Script Include will take the file content and other necessary information and return the sys_id of the newly created attachment record.</description>
+        <name>AAIfileUploadUtility</name>
+        <script><![CDATA[var AAIfileUploadUtility = Class.create();
+AAIfileUploadUtility.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+    // initialize: function() {},
+	canIconnectScoped: function() {
+		/*
+		you may have noticed that we don't return any values from our function. We can if we 
+		want, but it is not necessary. The AbstractAjaxProcessor class (which is our 
+		superclass - which means we're extending it) has built-in functionality that returns 
+		the entire XML document when we're through. 
+		*/
+		var strResponse = 'correct response from canIconnect';
+		return JSON.stringify(strResponse);
+		//return strResponse;
+	},
+
+    uploadPDFscoped: function(tableName, recordSysId, fileName, filetype, base64Content) {
+		var step = 'start try';
+        try {
+            // Base64 content is passed directly; assume it's stored or handled 
+			// by another system
+			// GlideStringUtil.base64Encode works only in global scope
+			var base64ContentString = GlideStringUtil.base64Encode(base64Content);
+
+			var rec = new GlideRecord(tableName);
+			rec.get(recordSysId);
+
+			// Check if the record was found
+			if (rec.isValidRecord()) {
+				var attachment = new GlideSysAttachment();
+				// writeBase64(GlideRecord now_GR, String fileName, String contentType, String content_base64Encoded)
+				var attachmentSysId = attachment.writeBase64(rec, fileName, filetype, base64ContentString);
+
+				return JSON.stringify({
+					attachmentSysId: attachmentSysId,
+					tableName: tableName,
+					recordSysId: recordSysId
+				});	
+			}
+			else {
+				return JSON.stringify({
+					attachmentSysId: '-2758',
+					tableName: tableName,
+					recordSysId: '0'
+				});	
+			}
+
+        } catch (error) {
+            return JSON.stringify({
+                attachmentSysId: '0',
+                tableName: step + ': ' + error.message,
+                recordSysId: '0'
+            });
+        }
+    },
+
+    createAdobeSignAgreement: function(lclAgreementPayload) {
+        try {
+            // Create the RESTMessageV2 object
+            var request = new sn_ws.RESTMessageV2();
+            request.setHttpMethod("post");
+            request.setEndpoint("https://api.na1.adobesign.com/api/rest/v6/agreements");
+            
+            // Encode the credentials
+            var credentials = GlideStringUtil.base64Encode('sfarkas:Junha#2003');
+            request.setRequestHeader("Authorization", "Bearer " + credentials);
+            request.setRequestHeader("Content-Type", "application/json");
+            request.setRequestBody(JSON.stringify(lclAgreementPayload));
+
+            // Execute the request asynchronously
+            request.executeAsync().then(function(response) {
+                var responseBody = response.getBody();
+                var httpStatus = response.getStatusCode();
+
+                if (httpStatus === 201) {
+                    var responseJson = JSON.parse(responseBody);
+                    var agreementId = responseJson.id; // The ID of the newly created agreement
+                    gs.info("Agreement created successfully. Agreement ID: " + agreementId);
+
+                } else {
+                    gs.error("Failed to create agreement. Status Code: " + httpStatus + ". Response: " + responseBody);
+                }
+            }).catch(function(error) {
+                gs.error("An error occurred: " + error.message);
+            });
+        } catch (ex) {
+            gs.error("An exception occurred: " + ex.getMessage());
+        }
+    },
+
+    type: 'AAIfileUploadUtility'
+});
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-08-13 14:52:17</sys_created_on>
+        <sys_id>b01651341b449e1076f215ff034bcbdd</sys_id>
+        <sys_mod_count>24</sys_mod_count>
+        <sys_name>AAIfileUploadUtility</sys_name>
+        <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
+        <sys_update_name>sys_script_include_b01651341b449e1076f215ff034bcbdd</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-08-20 21:02:39</sys_updated_on>
+    </sys_script_include>
+</record_update>

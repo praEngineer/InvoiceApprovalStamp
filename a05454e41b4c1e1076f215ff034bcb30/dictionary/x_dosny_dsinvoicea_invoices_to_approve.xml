@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="b125dc281b4c1e1076f215ff034bcbe5" label="Invoices to Approve" max_length="40" name="x_dosny_dsinvoicea_invoices_to_approve" type="collection">
+        <element label="Name 01" max_length="25" name="name_01" type="string"/>
+        <element label="Name 02" max_length="25" name="name_02" type="string"/>
+        <element attributes="edge_encryption_enabled=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element label="Period Date" max_length="40" name="period_date" type="glide_date"/>
+        <element attributes="encode_utf8=false" label="Vendor" max_length="32" name="vendor" reference="core_company" type="reference"/>
+        <index name="index">
+            <element name="vendor"/>
+        </index>
+    </element>
+</database>

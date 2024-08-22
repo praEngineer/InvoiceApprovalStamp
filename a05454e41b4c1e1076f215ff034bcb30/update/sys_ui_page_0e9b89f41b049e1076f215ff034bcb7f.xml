@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_page">
+    <sys_ui_page action="INSERT_OR_UPDATE">
+        <category>cms</category>
+        <client_script><![CDATA[        var urlOfTheInvoiceToBeSigned = '';
+		
+		function canIconnect(){
+			var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+			ga.addParam('sysparm_name', 'canIconnect');
+			ga.addParam('aString', 'anything');
+			ga.getXMLAnswer(function(response) {
+				var result = JSON.parse(response);
+				if(result){
+					document.getElementById('result').innerText = result;
+				}
+				else {
+					document.getElementById('result').innerText = 'no result from canIconnect';
+				}
+				
+			});
+		}
+
+		function canIgetSysId(){
+			var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+			ga.addParam('sysparm_name', 'getUIPageSysId');
+			ga.addParam('uiPageName', 'ApproveAttachedInvoice');
+			ga.getXMLAnswer(function(response) {
+				var result = response; // JSON.parse(response);
+				if(result){
+					document.getElementById('result').innerText = result;
+				}
+				else {
+					document.getElementById('result').innerText = 'no result from canIgetSysId';
+				}
+				
+			});
+		}
+
+		// Function to find all INPUT tags with type=email and retrieve their values
+		function getAllEmailInputs() {
+			document.getElementById('result').innerText = 'getAllEmailInputs';
+			// Use querySelectorAll to select all INPUT elements with type=email
+			var emailInputs = document.querySelectorAll('input[type="email"]');
+			
+			// Create an array to store the email values
+			var emailValues = [];
+			var index = -1 ;
+			// Loop through the NodeList returned by querySelectorAll
+			emailInputs.forEach(function(inputElement) {
+				index++
+				// Push the value of the current email input into the array
+				index === 0 && (document.getElementById('email1').innerText = inputElement.value);
+				index === 1 && (document.getElementById('email2').innerText = inputElement.value);
+				inputElement.value.length > 0 && emailValues.push(inputElement.value);
+			});
+			if(emailValues.length > 0 ) {
+				// Return or log the array of email values
+				return emailValues;
+			}
+			else {
+				alert('This program needs two e-mail addresses.');
+				throw new Error('This program needs two e-mail addresses.');
+			}
+		}
+
+		function createSignersJson(emailValues) {
+			document.getElementById('result').innerText = 'createSignersJson';
+			var signers = [];
+			
+			// Loop through the emailValues array
+			emailValues.forEach(function(email, index) {
+				// Create an object for each signer
+				var signer = {
+					email: email,
+					placeholder: "Name" + (index + 1), // Generate placeholder as "Signer1", "Signer2", etc.
+					recipientIndex: index + 1 // Index starts at 1 for recipientIndex
+				};
+				
+				// Add the signer object to the signers array
+				signers.push(signer);
+			});
+
+			return agreementPayload(signers);
+		}		
+
+		function agreementPayload(signers) {
+			document.getElementById('result').innerText = 'agreementPayload';
+			return {
+				"fileInfos": [
+					{
+						"documentURL": {
+							"url": urlOfTheInvoiceToBeSigned
+						}
+					}
+				],
+				"name": "Agreement for PDF Document",
+				"recipientSetInfos": signers.map(function(signer) {
+					return {
+						"recipientSetMemberInfos": [
+							{
+								"email": signer.email
+							}
+						],
+						"recipientSetRole": "SIGNER"
+					};
+				}),
+				"signatureType": "ESIGN",
+				"state": "IN_PROCESS", // You can also use DRAFT if you want to review it before sending
+				"formFieldLayerTemplates": [
+					{
+						"name": "SignatureFieldsLayer",
+						"formFields": [signers]
+					}
+				]
+			};			
+		}
+
+		function downloadPDF() {
+			try{
+				var fileInput = document.getElementById('pdfFile');
+				var file = fileInput.files[0];
+				if (!file) {
+					alert('Please select a PDF file to download.');
+					return;
+				}
+				else {
+					alert('You selected this file for download: ' + file.name);
+				}				
+				var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
+				var recordSysId = '0e9b89f41b049e1076f215ff034bcb7f'; // Set this to the sys_id of the record
+
+				var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+				ga.addParam('sysparm_name', 'readAttIntoString');
+				ga.addParam('tableName', tableName);
+				ga.addParam('fileName', file.name);				
+				ga.addParam('recordSysId', recordSysId);	
+				document.getElementById('result').innerText = 'download ga parms loaded for ' + file.name;
+				ga.getXMLAnswer(_handleDownloadResponse);
+			}
+			catch(error){
+				document.getElementById('result').innerText = 'hummph in download ...' +  error.message;
+			}
+		}
+
+		function decodeBase64ToBinary(base64String) {
+			try{
+				// base64String = "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";
+
+				// Remove data URL prefix if present
+				if (base64String.includes("base64,")) {
+					base64String = base64String.split("base64,")[1];
+				}	
+				base64String = base64String.replace(/-/g, "+").replace(/_/g, "/");
+
+				// Ensure the string is correctly padded
+				while (base64String.length % 4 !== 0) {
+					base64String += "=";
+				}
+				
+				// Step 1: Decode the base64 string into a binary string
+				// document.getElementById('message').innerText = 'base64String in decodeBase64ToBinary is: ' +  base64String.toString().split(0,35);
+				var binaryString = Window.atob(base64String);
+
+				// Step 2: Create a Uint8Array from the binary string
+				var len = binaryString.length;
+				var binaryData = new Uint8Array(len);
+				for (var i = 0; i < len; i++) {
+					binaryData[i] = binaryString.charCodeAt(i);
+				}
+				//binaryData = '%PDF-1.6,' + binaryData + '%%EOF';
+				return binaryData;
+			}
+			catch(error){
+				document.getElementById('result').innerText = 'hummph in decodeBase64ToBinary ...' +  error.message;
+				return base64String;
+			}
+
+		}
+
+		function convertToCSV(dataAsStringFromScriptInclude) {
+			try{
+				var itemLen = 4;
+				var resultArray = [];
+				
+				// Loop through the string in steps of itemLen characters
+				for (var i = 0; i < dataAsStringFromScriptInclude.length; i += itemLen) {
+					// Get the next itemLen characters
+					var chunk = dataAsStringFromScriptInclude.substr(i, itemLen);
+					resultArray.push(chunk);
+				}
+				
+				// Join the array into a CSV string
+				var csvString = resultArray.join(',');
+				
+				return csvString;
+			}
+			catch(error){
+				return error.message + ' from convertToCSV';
+			}
+			
+		}
+
+		function _handleDownloadResponse(response) {
+			if(response !== undefined){
+				var dataFromScriptInclude = JSON.parse(response);
+				document.getElementById('message').innerText = 'response: ' + dataFromScriptInclude.slice(0,20);
+				var dataAsStringFromScriptInclude = dataFromScriptInclude.toString();
+				if(dataAsStringFromScriptInclude){
+					try {
+						// // Ensure the string is correctly padded
+						// while (dataAsStringFromScriptInclude.length % 4 !== 0) {
+						// 	dataAsStringFromScriptInclude += "=";
+						// }
+						var stringArray = '';
+						var binaryArray = [];
+						if (dataAsStringFromScriptInclude.includes(',')) {
+							document.getElementById('message').innerText = 'response: ' + dataAsStringFromScriptInclude.slice(0,20) ;
+								
+						// Step 1: Split the CSV string into an array of strings
+							if (dataAsStringFromScriptInclude && typeof dataAsStringFromScriptInclude === 'string') {
+								stringArray = dataAsStringFromScriptInclude.split(',');
+							} else {
+								// Handle the case where dataAsStringFromScriptInclude is not a valid string
+								var str = dataAsStringFromScriptInclude.toString();
+								document.getElementById('message').innerText = 'str is ' + str.slice(0,20);
+								stringArray = str.split(',');
+							}
+
+						// Step 2: Convert each string to an integer
+							var intArray = stringArray.map(function(num) {
+								return parseInt(num, 10);
+							});
+						
+						// Step 3: Create a Uint8Array from the integer array
+							binaryArray = new Uint8Array(intArray);
+						}
+						else {
+							document.getElementById('message').innerText = 'response has no commas';
+							while (dataAsStringFromScriptInclude.length % 4 !== 0) {
+								dataAsStringFromScriptInclude += "=";
+							}
+							var len = dataAsStringFromScriptInclude.length;
+							var binaryData = new Uint8Array(len);
+							for (var i = 0; i < len; i++) {
+								binaryData[i] = dataAsStringFromScriptInclude.charCodeAt(i);
+							}
+						}
+						var blob = new Blob([binaryArray], { type: 'application/pdf' });	
+						// document.getElementById('message').innerText = 'blob is set';
+
+						var fileInput = document.getElementById('pdfFile');
+						var file = fileInput.files[0];
+
+
+						// Step 4: Create a download link and trigger the download
+						var link = document.createElement('a');
+						// urlOfTheInvoiceToBeSigned = window.URL.createObjectURL(blob);;
+						link.href = window.URL.createObjectURL(blob);
+						link.download = file.name; // 'file.pdf';
+						link.click();
+
+						// document.getElementById('message').innerText = 'link was clicked';
+						// Optionally, revoke the object URL after the download
+						window.URL.revokeObjectURL(link.href);	
+					}
+					catch(error){
+						document.getElementById('result').innerText = 'hummph in download handler ...' +  error.message;
+					}
+			
+				} else {
+					document.getElementById('result').innerText = 'hummph in download handler  ... no base64String' ;
+				}
+			}
+			else {
+				document.getElementById('result').innerText = 'hummph in download handler  ... no download response' ;
+			}
+		}
+
+		function routeForSignature() {
+			document.getElementById('message').innerText = 'routeForSignature';
+			try{
+				var fileInput = document.getElementById('pdfFile');
+				var file = fileInput.files[0];
+				if (!file) {
+					alert('Please select a PDF file to route.');
+					return;
+				}
+				else {
+					alert('You selected this file for routing: ' + file.name);
+				}				
+				var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
+
+				var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+				ga.addParam('sysparm_name', 'getUIPageSysId');
+				ga.addParam('uiPageName','ApproveAttachedInvoice');
+				document.getElementById('message').innerText = 'lookup recordSysId';
+				ga.getXMLAnswer(function(response) {
+					if(response !== undefined){
+						var recordSysId = response; // .responseXML.documentElement.getAttribute("answer");
+						document.getElementById('message').innerText = 'found recordSysId';
+
+						var ga2 = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+						ga2.addParam('sysparm_name', 'readAttIntoString');
+						ga2.addParam('tableName', tableName);
+						ga2.addParam('fileName', file.name);				
+						ga2.addParam('recordSysId', recordSysId);	
+						document.getElementById('message').innerText = 'readAttIntoString API call for ' + file.name;
+						ga2.getXMLAnswer(_routeForSignatureResponse);
+					}
+					else {
+						throw new Error('cannot determine recordSysId for UI Page ' + 'ApproveAttachedInvoice');
+					}
+				});
+			}
+			catch(error){
+				document.getElementById('message').innerText = 'hummph in route for signature ...' +  error.message;
+			}			
+		}
+
+		function _routeForSignatureResponse(response) {
+			document.getElementById('message').innerText = '_routeForSignatureResponse';
+			if(response !== undefined){
+				var dataFromScriptInclude = JSON.parse(response);
+				// document.getElementById('message').innerText = 'response: ' + dataFromScriptInclude.slice(0,20);
+				var dataAsStringFromScriptInclude = dataFromScriptInclude.toString();
+				if(dataAsStringFromScriptInclude){
+					try {
+						// // Ensure the string is correctly padded
+						// while (dataAsStringFromScriptInclude.length % 4 !== 0) {
+						// 	dataAsStringFromScriptInclude += "=";
+						// }
+						var stringArray = '';
+						var binaryArray = [];
+						if (dataAsStringFromScriptInclude.includes(',')) {
+							document.getElementById('message').innerText = 'response: ' + dataAsStringFromScriptInclude.slice(0,20) ;
+								
+						// Step 1: Split the CSV string into an array of strings
+							if (dataAsStringFromScriptInclude && typeof dataAsStringFromScriptInclude === 'string') {
+								stringArray = dataAsStringFromScriptInclude.split(',');
+							} else {
+								// Handle the case where dataAsStringFromScriptInclude is not a valid string
+								var str = dataAsStringFromScriptInclude.toString();
+								document.getElementById('message').innerText = 'str is ' + str.slice(0,20);
+								stringArray = str.split(',');
+							}
+
+						// Step 2: Convert each string to an integer
+							var intArray = stringArray.map(function(num) {
+								return parseInt(num, 10);
+							});
+						
+						// Step 3: Create a Uint8Array from the integer array
+							binaryArray = new Uint8Array(intArray);
+						}
+						else {
+							document.getElementById('message').innerText = 'response has no commas';
+							while (dataAsStringFromScriptInclude.length % 4 !== 0) {
+								dataAsStringFromScriptInclude += "=";
+							}
+							var len = dataAsStringFromScriptInclude.length;
+							var binaryData = new Uint8Array(len);
+							for (var i = 0; i < len; i++) {
+								binaryData[i] = dataAsStringFromScriptInclude.charCodeAt(i);
+							}
+						}
+						var blob = new Blob([binaryArray], { type: 'application/pdf' });	
+						// document.getElementById('message').innerText = 'blob is set';
+
+						var fileInput = document.getElementById('pdfFile');
+						var file = fileInput.files[0];
+
+
+						// Step 4: Create a download link and trigger the download
+						var link = document.createElement('a');
+						urlOfTheInvoiceToBeSigned = window.URL.createObjectURL(blob);
+
+						var emails = getAllEmailInputs();
+						var lclAgreementPayload =   createSignersJson(emails);
+
+						var ga3 = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+						ga3.addParam('sysparm_name', 'createAdobeSignAgreement');
+						ga3.addParam('lclAgreementPayload',lclAgreementPayload);
+						// Execute synchronously and get the response
+						ga3.getXMLAnswer(_routeForAdobeSignResponse);
+
+
+
+						// // Make the API call to create the agreement
+						// var request = new sn_ws.RESTMessageV2();
+						// request.setHttpMethod("post");
+						// request.setEndpoint("https://api.na1.adobesign.com/api/rest/v6/agreements");
+						// var credentials =  btoa(
+						// 	'sfarkas' + ':' + 'Junha#2003'  
+						// 	);
+						// request.setRequestHeader("Authorization", "Bearer " + credentials);
+						// request.setRequestHeader("Content-Type", "application/json");
+						// request.setRequestBody(JSON.stringify(lclAgreementPayload));
+
+						// // Use executeAsync to send the request asynchronously
+						// request.executeAsync().then(function(response) {
+						// 	// Handle the response in the callback
+						// 	var responseBody = response.getBody();
+						// 	var httpStatus = response.getStatusCode();
+							
+						// 	if (httpStatus === 201) {
+						// 		var responseJson = JSON.parse(responseBody);
+						// 		var agreementId = responseJson.id; // The ID of the newly created agreement
+						// 		document.getElementById('result').innerText = "Agreement created successfully. Agreement ID: " + agreementId;
+
+						// 		//Revoke the object URL 
+						// 		window.URL.revokeObjectURL(urlOfTheInvoiceToBeSigned);	
+						// 	} else {
+						// 		document.getElementById('result').innerText ="Failed to create agreement. Status Code: " + httpStatus + ". Response: " + responseBody;
+						// 	}
+						// }).catch(function(error) {
+						// 	// Handle any errors that occurred during the request
+						// 	document.getElementById('result').innerText ="An error occurred: " + error.message;
+						// });						
+					}
+					catch(error){
+						document.getElementById('result').innerText = 'hummph in _routeForSignatureResponse ...' +  error.message;
+					}
+			
+				} else {
+					document.getElementById('result').innerText = 'hummph in _routeForSignatureResponse  ... no base64String' ;
+				}
+			}
+			else {
+				document.getElementById('result').innerText = 'hummph in download handler  ... no download response' ;
+			}
+		}
+
+		function _routeForAdobeSignResponse(response3) {
+			// Get the answer from the response
+			var result = response3; //.documentElement.getAttribute("answer");
+
+			// Handle the result
+			document.getElementById('message').innerText = result; // Log or handle the result as needed
+			//Revoke the object URL 
+			window.URL.revokeObjectURL(urlOfTheInvoiceToBeSigned);
+		}
+
+		function uploadPDF() {
+            var fileInput = document.getElementById('pdfFile');
+            var file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a PDF file to upload.');
+                return;
+            }
+			try {
+				document.getElementById('filename').innerText = 'PDF file name is ' + file.name;
+				
+				var reader = new FileReader();
+				// The placement of reader.readAsDataURL(file); after reader.onload 
+				// in the code is intentional and necessary for the correct functioning 
+				// of the FileReader API.
+
+				reader.onload = function(event) {
+					//  event.target.result as if you opened the PDF with notepad
+					var base64Content = event.target.result.split(',')[1]; // Get Base64 content without the prefix
+					var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
+					var recordSysId = '0e9b89f41b049e1076f215ff034bcb7f'; // Set this to the sys_id of the record
+
+					// Send the raw data (Base64) to the server
+					var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+					ga.addParam('sysparm_name', 'uploadPDFglobal');
+
+					ga.addParam('tableName', tableName);
+					ga.addParam('recordSysId', recordSysId);
+					ga.addParam('fileName', file.name);
+					document.getElementById('filetype').innerText = 'MIME type is '+file.type;
+					ga.addParam('filetype', file.type); 
+					ga.addParam('base64Content', base64Content);
+					document.getElementById('filename').innerText = 'base64Content is ' + base64Content.slice(0,20);
+					ga.getXMLAnswer(_handleUploadResponse);
+				};
+
+				// Once the file has been read, the onload event is triggered, and the code 
+				// within the onload function executes.
+
+				/*
+				When reader.readAsDataURL(file); is called, the FileReader starts reading 
+				the file as a Data URL. Once the reading is complete, the onload event is 
+				triggered, and the event object inside the onload function contains the 
+				Base64-encoded file content, as well as a reference to the original File 
+				object that was read.
+				*/
+				reader.readAsDataURL(file); // Read the file as a Data URL (Base64 encoded)
+			}
+			catch (error){
+				document.getElementById('result').innerText = 'hummph ...' +  error.message;
+			}
+
+        }
+
+		function _handleUploadResponse(response)  {
+			if(response){
+				var result = JSON.parse(response);
+				if(result){
+					if(result.recordSysId !== '0') {
+						document.getElementById('result').innerText = 
+							'Attachment uploaded to table: ' + result.tableName +
+							'\nRecord sys_id: ' + result.recordSysId +
+							'\nAttachment sys_id: ' + result.attachmentSysId;
+					} else {
+						document.getElementById('result').innerText = 'script include problem: ' + result.tableName;
+					}
+				} else {
+					document.getElementById('result').innerText = 'hummph ... no result' ;
+				}
+			}
+			else {
+				document.getElementById('result').innerText = 'hummph ... no response' ;
+			}
+
+		}
+
+]]></client_script>
+        <description>upload a PDF to the attachment table (sys_attachment) in ServiceNow from a UI Page using client-side JavaScript, you can use the ServiceNow GlideAjax API in combination with a server-side Script Include to handle the file upload and return the necessary information.</description>
+        <direct>false</direct>
+        <endpoint>x_dosny_dsinvoicea_ApproveAttachedInvoice.do</endpoint>
+        <html><![CDATA[<html>
+<head>
+    <title>Upload PDF</title>
+</head>
+<body>
+    <h2>Route this PDF</h2>
+    <input type="file" id="pdfFile" accept="application/pdf" />
+    <button onclick="uploadPDF()">Upload</button>
+	<button onclick="downloadPDF()">Download</button>
+	<button onclick="canIconnect()">Try it</button>
+	<button onclick="canIgetSysId()">Get SysId</button>
+	<br/>
+	<div id="filename"></div>
+	<br/>
+	<div id="filetype"></div>
+	<br/>
+    <div id="result"></div>
+	<br/>
+    <div id="message"></div>
+	<br />
+	<label for="signer1">Signer 1 Email:</label>
+	<input type="email" id="signer1" /><input type="text" id="email1" value="empty"/>
+	<br />
+	<label for="signer2">Signer 2 Email:</label>
+	<input type="email" id="signer2" /><input type="text" id="email2" value="empty"/>
+	<br />
+	<button onclick="routeForSignature()">Route attached to Adobe Sign</button>
+
+	
+</body>
+</html>
+]]></html>
+        <name>ApproveAttachedInvoice</name>
+        <processing_script/>
+        <sys_class_name>sys_ui_page</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-08-13 14:20:36</sys_created_on>
+        <sys_id>0e9b89f41b049e1076f215ff034bcb7f</sys_id>
+        <sys_mod_count>187</sys_mod_count>
+        <sys_name>ApproveAttachedInvoice</sys_name>
+        <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
+        <sys_update_name>sys_ui_page_0e9b89f41b049e1076f215ff034bcb7f</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-08-20 21:21:26</sys_updated_on>
+    </sys_ui_page>
+</record_update>
