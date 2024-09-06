@@ -2,39 +2,9 @@
     <sys_ui_page action="INSERT_OR_UPDATE">
         <category>cms</category>
         <client_script><![CDATA[        var urlOfTheInvoiceToBeSigned = '';
-		
-		function canIconnect(){
-			var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
-			ga.addParam('sysparm_name', 'canIconnect');
-			ga.addParam('aString', 'anything');
-			ga.getXMLAnswer(function(response) {
-				var result = JSON.parse(response);
-				if(result){
-					document.getElementById('result').innerText = result;
-				}
-				else {
-					document.getElementById('result').innerText = 'no result from canIconnect';
-				}
-				
-			});
-		}
+		var poSysId = 'somePOnumber';
 
-		function canIgetSysId(){
-			var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
-			ga.addParam('sysparm_name', 'getUIPageSysId');
-			ga.addParam('uiPageName', 'ApproveAttachedInvoice');
-			ga.getXMLAnswer(function(response) {
-				var result = response; // JSON.parse(response);
-				if(result){
-					document.getElementById('result').innerText = result;
-				}
-				else {
-					document.getElementById('result').innerText = 'no result from canIgetSysId';
-				}
-				
-			});
-		}
-
+		// getAllEmailInputs called by _modifyAgreementWithSpecifics
 		// Function to find all INPUT tags with type=email and retrieve their values
 		function getAllEmailInputs() {
 			document.getElementById('result').innerText = 'getAllEmailInputs';
@@ -48,72 +18,583 @@
 			emailInputs.forEach(function(inputElement) {
 				index++
 				// Push the value of the current email input into the array
-				index === 0 && (document.getElementById('email1').innerText = inputElement.value);
-				index === 1 && (document.getElementById('email2').innerText = inputElement.value);
+				index === 0 && (document.getElementById('preparer').innerText = inputElement.value);
+				index === 1 && (document.getElementById('signer1').innerText = inputElement.value);
+				index === 2 && (document.getElementById('signer2').innerText = inputElement.value);
 				inputElement.value.length > 0 && emailValues.push(inputElement.value);
 			});
-			if(emailValues.length > 0 ) {
+			if(emailValues.length > 2 ) {
 				// Return or log the array of email values
 				return emailValues;
 			}
 			else {
-				alert('This program needs two e-mail addresses.');
-				throw new Error('This program needs two e-mail addresses.');
+				alert('This program needs three e-mail addresses.');
+				throw new Error('This program needs three e-mail addresses.');
 			}
 		}
 
-		function createSignersJson(emailValues) {
-			document.getElementById('result').innerText = 'createSignersJson';
-			var signers = [];
-			
-			// Loop through the emailValues array
-			emailValues.forEach(function(email, index) {
-				// Create an object for each signer
-				var signer = {
-					email: email,
-					placeholder: "Name" + (index + 1), // Generate placeholder as "Signer1", "Signer2", etc.
-					recipientIndex: index + 1 // Index starts at 1 for recipientIndex
-				};
-				
-				// Add the signer object to the signers array
-				signers.push(signer);
-			});
+		// createAdobeSignAgreementFullModel called by _modifyAgreementWithSpecifics
+		// once agreement is in-place, use Adobe Sign API to modify anchor tags, etc.
+		function createAdobeSignAgreementFullModel(arrOfEmails, transientDocumentId, poSysId) {
+			var dateCreted = new Date().toISOString(); 
 
-			return agreementPayload(signers);
-		}		
-
-		function agreementPayload(signers) {
-			document.getElementById('result').innerText = 'agreementPayload';
 			return {
-				"fileInfos": [
+			"fileInfos": [
+				{
+				"document": {
+					"createdDate": dateCreted,
+					"id": transientDocumentId,
+					"label": "",
+					"numPages": 10,
+					"mimeType": "application/pdf",
+					"name": ""
+				},
+				"label": "",
+				"libraryDocumentId": "",
+				"notarize": false,
+				"transientDocumentId": transientDocumentId,
+				"urlFileInfo": {
+					"mimeType": "",
+					"name": "",
+					"url": ""
+				}
+				}
+			],
+			"name": poSysId, //  name of the agreement that will be used to identify it, in emails, website and other places,
+			"participantSetsInfo": [
+				{
+				"order": 1,
+				"role": "FORM_FILLER",
+				"electronicSealId": "",
+				"id": "",
+				"label": "", // for custom workflows, n/a here
+				"memberInfos": [
 					{
-						"documentURL": {
-							"url": urlOfTheInvoiceToBeSigned
+					"deliverableEmail": false,
+					"email": arrOfEmails[0],
+					"id": "",
+					"name": "",
+					"phoneDeliveryInfo": {
+						"countryCode": "",
+						"countryIsoCode": "",
+						"phone": ""
+					},
+					"securityOption": {
+						"authenticationMethod": "",
+						"digAuthInfo": {
+						"providerId": "",
+						"providerDesc": "",
+						"providerName": ""
+						},
+						"nameInfo": {
+						"firstName": "",
+						"lastName": ""
+						},
+						"notaryAuthentication": "",
+						"password": "",
+						"phoneInfo": {
+						"countryCode": "",
+						"countryIsoCode": "",
+						"phone": ""
 						}
 					}
-				],
-				"name": "Agreement for PDF Document",
-				"recipientSetInfos": signers.map(function(signer) {
-					return {
-						"recipientSetMemberInfos": [
-							{
-								"email": signer.email
-							}
-						],
-						"recipientSetRole": "SIGNER"
-					};
-				}),
-				"signatureType": "ESIGN",
-				"state": "IN_PROCESS", // You can also use DRAFT if you want to review it before sending
-				"formFieldLayerTemplates": [
-					{
-						"name": "SignatureFieldsLayer",
-						"formFields": [signers]
 					}
+				],
+				"name": "",
+				"privateMessage": "",
+				"providerParticipationInfo": {
+					"label": "",
+					"participationId": "",
+					"participationSetId": ""
+				},
+				"visiblePages": [
+					""
 				]
-			};			
+				}
+			],
+			"signatureType": "ESIGN",
+			"state": "DRAFT", //  ['AUTHORING' or 'DRAFT' or 'IN_PROCESS' or 'RESTART']
+			"agreementSettingsInfo": {
+				"canEditAgreementSettings": false,
+				"canEditElectronicSeals": false,
+				"canEditFiles": false,
+				"hipaaEnabled": false
+			},
+			"ccs": [
+				{
+				"email": "",
+				"label": "",
+				"visiblePages": [
+					""
+				]
+				}
+			],
+			"createdDate": "",
+			"createdGroupId": "",
+			"deviceInfo": {
+				"applicationDescription": "",
+				"deviceDescription": "",
+				"deviceTime": ""
+			},
+			"documentRetentionAppliedDate": "date",
+			"documentVisibilityEnabled": false,
+			"emailOption": {
+				"sendOptions": {
+				"completionEmails": "",
+				"inFlightEmails": "",
+				"initEmails": ""
+				}
+			},
+			"expirationTime": "",
+			"externalId": {
+				"id": ""
+			},
+			"firstReminderDelay": 1,
+			"formFieldGenerators": [
+				{
+				"formFieldDescription": {
+					"alignment": "",
+					"backgroundColor": "",
+					"borderColor": "",
+					"borderStyle": "",
+					"borderWidth": 0,
+					"calculated": false,
+					"conditionalAction": {
+					"action": "",
+					"anyOrAll": "",
+					"predicates": [
+						{
+						"fieldLocationIndex": 1,
+						"fieldName": "",
+						"operator": "",
+						"value": ""
+						}
+					]
+					},
+					"contentType": "",
+					"currency": "",
+					"defaultValue": "",
+					"displayFormat": "",
+					"displayFormatType": "",
+					"displayLabel": "",
+					"fontColor": "",
+					"fontName": "",
+					"fontSize": 0,
+					"hiddenOptions": [
+					""
+					],
+					"hyperlink": {
+					"documentLocation": {
+						"height": 0,
+						"left": 0,
+						"pageNumber": 1,
+						"top": 0,
+						"width": 0
+					},
+					"linkType": "",
+					"url": ""
+					},
+					"inputType": "",
+					"masked": false,
+					"maskingText": "",
+					"maxLength": 1,
+					"maxValue": 0,
+					"minLength": 1,
+					"minValue": 0,
+					"origin": "",
+					"radioCheckType": "",
+					"readOnly": false,
+					"required": false,
+					"tooltip": "",
+					"urlOverridable": false,
+					"validation": "",
+					"validationData": "",
+					"validationErrMsg": "",
+					"valueExpression": "",
+					"visible": false,
+					"visibleOptions": [
+					""
+					]
+				},
+				"formFieldNamePrefix": "",
+				"generatorType": "",
+				"participantSetName": "",
+				"anchorTextInfo": {
+					"anchorText": "",
+					"anchoredFormFieldLocation": {
+					"height": 0,
+					"width": 0,
+					"offsetX": 0,
+					"offsetY": 0
+					},
+					"fileInfoLabel": "",
+					"pages": [
+					"int"
+					]
+				},
+				"linked": false
+				}
+			],
+			"formFieldLayerTemplates": [
+				{
+				"document": {
+					"createdDate": "date",
+					"id": "",
+					"label": "",
+					"numPages": 1,
+					"mimeType": "",
+					"name": ""
+				},
+				"label": "",
+				"libraryDocumentId": "",
+				"notarize": false,
+				"transientDocumentId": "",
+				"urlFileInfo": {
+					"mimeType": "",
+					"name": "",
+					"url": ""
+				}
+				}
+			],
+			"groupId": "",
+			"hasFormFieldData": false,
+			"hasSignerIdentityReport": false,
+			"id": "", // The unique identifier of the agreement.If provided in POST, it will simply be ignored
+			"isDocumentRetentionApplied": false,
+			"lastEventDate": "date",
+			"locale": "",
+			"mergeFieldInfo": [
+				{
+				"defaultValue": dateCreted,
+				"fieldName": "PeriodDate"
+				},
+				{
+				"defaultValue": arrOfEmails[1],
+				"fieldName": "Name1"
+				},
+				{
+				"defaultValue": arrOfEmails[2],
+				"fieldName": "Name2"
+				},
+				{
+				"defaultValue": dateCreted,
+				"fieldName": "PeriodDate"
+				},
+				{
+				"defaultValue": dateCreted,
+				"fieldName": "PeriodDate"
+				}												
+			],
+			"message": "",
+			"notaryInfo": {
+				"appointment": "",
+				"notaryEmail": "",
+				"notaryType": "",
+				"note": "",
+				"payment": ""
+			},
+			"parentId": "",
+			"postSignOption": {
+				"redirectDelay": 1,
+				"redirectUrl": ""
+			},
+			"redirectOptions": [
+				{
+				"action": "",
+				"url": "",
+				"delay": 1
+				}
+			],
+			"reminderFrequency": "",
+			"securityOption": {
+				"contentProtectionPreference": {
+				"external": "",
+				"internal": ""
+				},
+				"openPassword": ""
+			},
+			"sendType": "",
+			"senderEmail": "",
+			"senderSigns": "NEVER", // ['FIRST' or 'LAST' or 'NEVER' or 'APPROVE' or 'ARCHIVE' or 'FORWARD' or 'SEQUENTIAL' or 'DELIVER' or 'FILL_SIGN' or 'SEND_ONLY_TO_SELF']:
+			"status": "",
+			"type": "",
+			"vaultingInfo": {
+				"enabled": false
+			},
+			"workflowId": ""
+			}
 		}
 
+		// _modifyAgreementWithSpecifics called by createAgreement
+		function _modifyAgreementWithSpecifics(agreementId){
+			var endpoint = "https://api.na1.adobesign.com/api/rest/v6/agreements/" + agreementId;
+			var integrationKey = '3AAABLblqZhDbzuKsqlwendYru-LDHc8urVIiSF1S5JqU-QDPZ8n3hgda1FrqiyQRzTpYp4QBm7Kvs4zEudTJ7XWpBbFRtQA-'; // agreement
+			// var integrationKey = '3AAABLblqZhAZrPTAOrnJVVSxIwl-QHb4g_YT0nuhqkTCRcuGBXVC8I0LC0haymeht_kVwSDiLcTijIlpykIBdOOBvpk4lXrT'; // transient
+
+
+			// Get the emails from getAllEmailInputs
+			var emails = getAllEmailInputs();  // Assumes this function returns an array of 3 emails
+
+			// Define the recipientSetMemberInfos array using the emails
+			var recipientSetMemberInfos = emails.map(function(email) {
+				return { "email": email };
+			});
+
+			// Define the payload structure for Adobe Sign API
+			var payload = createAdobeSignAgreementFullModel(recipientSetMemberInfos, agreementId, poSysId);
+			return new Promise(function(resolve, reject) { // Wrap the function in a Promise
+				try {
+					// Fetch API call to make a POST request
+					fetch(endpoint, {
+						method: "PUT",
+						headers: {
+							"Authorization": "Bearer " + integrationKey,
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify(payload)  // Send the payload as JSON
+					})
+					.then(function(response){
+						// if (!response.ok) {
+						// 	// If response is not okay, log the error message
+						// 	var errorText=response.text();
+						// 	document.getElementById('result').innerText="createAdobeSignAgreementFullModel failed to create agreement. Status Code: "+response.status+". Response: "+errorText;
+						// }
+						// resolve(response.json());  // Parse the JSON response
+						if(response.ok){
+							return response.json(); // so it picks up in the next .then()
+						}
+						else {
+							reject("Failed to initialize with Adobe Sign POST " + response.statusText);
+						}
+					})
+					.then(function(responseJson){
+						var agreementId = responseJson.id;  // The ID of the newly created agreement
+						document.getElementById('result').innerText = "createAdobeSignAgreementFullModel Agreement created successfully. Agreement ID: " + agreementId;
+						resolve(agreementId);
+					})
+					.catch(function(error){
+						document.getElementById('result').innerText = "createAdobeSignAgreementFullModel promise rror creating agreement: " + error.message;
+						reject(null);
+					});
+				}
+				catch(anErr){
+					document.getElementById('result').innerText = "createAdobeSignAgreementFullModel try/catch error in createAgreement(): " + anErr.message;
+					reject(null);
+				}}
+			);
+		}
+
+		// createAgreement called by _handleWorkflowClientResponse
+		function createAdobeSignAgreement(transientDocumentId, fileName) {
+			// return an Adbove Sign Agreemment Id 
+
+			var endpoint = "https://api.na1.adobesign.com/api/rest/v6/agreements";
+			var integrationKey = '3AAABLblqZhDbzuKsqlwendYru-LDHc8urVIiSF1S5JqU-QDPZ8n3hgda1FrqiyQRzTpYp4QBm7Kvs4zEudTJ7XWpBbFRtQA-'; // agreeement
+			// var integrationKey = '3AAABLblqZhAZrPTAOrnJVVSxIwl-QHb4g_YT0nuhqkTCRcuGBXVC8I0LC0haymeht_kVwSDiLcTijIlpykIBdOOBvpk4lXrT'; // transient
+
+			// Get the emails from getAllEmailInputs
+			var emails = getAllEmailInputs();  // Assumes this function returns an array of 3 emails
+
+			// Define the recipientSetMemberInfos array using the emails
+			var recipientSetMemberInfos = emails.map(function(email) {
+				return { "email": email };
+			});
+
+			// Define the payload structure for Adobe Sign API
+			var payload = {
+				"fileInfos": [{
+					"name": fileName,  // Replace with actual PDF name
+					"transientDocumentId": transientDocumentId  // Adobe Sign Agreement Id
+				}],
+				"name": "Agreement for PDF",  // Agreement name
+				"recipientSetInfos": [{
+					"recipientSetMemberInfos": recipientSetMemberInfos,  // Use the dynamically generated email array
+					"recipientSetRole": "SIGNER",
+					"securityOption": {
+						"authenticationMethod": "NONE"  // No authentication required
+					}
+				}],
+				"signatureType": "ESIGN",
+				"state": "DRAFT"
+			};
+			// var payload = createAdobeSignAgreementFullModel(arrOfEmails, transientDocumentId, poSysId);
+
+			return new Promise(function(resolve, reject) { // Wrap the function in a Promise
+				try{
+					// Fetch API call to make a POST request
+					fetch(endpoint, {
+						method: "POST",
+						headers: {
+							"Authorization": "Bearer " + integrationKey,
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify(payload)  // Send the payload as JSON
+					})
+					.then(function(response){
+						if(response.ok){
+							return response.json(); // so it picks up in the next .then()
+						}
+						else {
+							reject("Failed to initialize with Adobe Sign POST " + response.statusText);
+						}
+					})
+					.then(function(responseJson){
+						var agreementId = responseJson.id;
+						if (agreementId) {
+							resolve(agreementId); // Resolve the promise with the agreementId
+						} else {
+							reject("Failed to create Adobe Sign agreement id");
+						}
+					})
+					.catch(function(err){
+						reject("Error uploading transient document: " + err);
+					});
+				}
+				catch(anErr){
+						document.getElementById('result').innerText = "createAgreement try/catch error in createAgreement(): " + anErr.message;
+						return null;
+				}
+			});
+
+		}
+
+		function uploadTransientDocument(base64EncodedPdf, fileName) {
+			return new Promise(function(resolve, reject) { // Wrap the function in a Promise{
+				try {
+					var endpoint = "https://api.na1.echosign.com/api/rest/v6/transientDocuments";
+					// var integrationKey = '3AAABLblqZhDbzuKsqlwendYru-LDHc8urVIiSF1S5JqU-QDPZ8n3hgda1FrqiyQRzTpYp4QBm7Kvs4zEudTJ7XWpBbFRtQA-'; // agreement
+					var integrationKey = '3AAABLblqZhAZrPTAOrnJVVSxIwl-QHb4g_YT0nuhqkTCRcuGBXVC8I0LC0haymeht_kVwSDiLcTijIlpykIBdOOBvpk4lXrT'; // transient
+// transient: {"code":"INVALID_ACCESS_TOKEN","message":"Access token provided is invalid or has expired"}
+					var formData = new FormData();
+					formData.append("File-Name", fileName);
+					formData.append("Mime-Type", "application/pdf");
+					formData.append("File", new Blob([base64EncodedPdf], { type: 'application/pdf' }));  // Convert the Base64 string to a Blob
+
+					// Fetch API call to upload the document as a transient document
+					fetch(endpoint, {
+						method: "POST",
+						headers: {
+							"Authorization": "Bearer " + integrationKey
+						},
+						body: formData  // Send the file as a form-data
+					})
+					.then(function(response){
+						if(response.ok){
+							return response.json(); // so it picks up in the next .then()
+						}
+						else {
+							reject("Failed to get a response from Adobe Sign POST " + response.statusText);
+						}
+					})
+					.then(function(responseJson){
+						var transientDocumentId = responseJson.transientDocumentId;
+						if (transientDocumentId) {
+							resolve(transientDocumentId); // Resolve the promise with the transientDocumentId
+						} else {
+							reject("Failed to get transientDocumentId");
+						}
+					})
+					.catch(function(err){
+						reject("Error uploading transient document: " + err);
+					});
+				}
+				catch(err2) {
+					document.getElementById('result').innerText = 'hummph in uploadTransientDocument ...' +  err2.message;
+					return null;
+				}}
+			);
+		}
+
+		// _handleWorkflowClientResponse called by startWorkFlowClient
+		function _handleWorkflowClientResponse(response, fileName){
+			// obtain a transient document id
+			// use the transient document as the basis of an Adobe Sign Agreement
+			// update the anchor tags of the transient document using Adobe Sign API(s)
+			try {
+				if(response !== undefined && !!response){ // not undefined and not null
+					var base64EncodedData = response; // returns a base64 encoded string
+
+					// Upload the Base64 PDF as a transient document to get a transientDocumentId.
+					// Use the transientDocumentId in the fileInfos array when creating the agreement.
+					// Pass the Base64 data to the createAgreement function
+
+					// Upload the Base64 PDF as a transient document to get a transientDocumentId
+					uploadTransientDocument(base64EncodedData, fileName)
+					.then(function(transientDocumentId) {
+						document.getElementById('message').innerText = 'Transient Document ID: ' + transientDocumentId;
+						
+						// Use the transientDocumentId to create an agreement
+						return createAdobeSignAgreement(transientDocumentId, fileName); // returns agreement id
+					})
+					.then(function(agreementId) {
+						document.getElementById('message').innerText = 'Basic Agreement Created. Agreement ID: ' + agreementId;
+						
+						// Modify the agreement with specifics
+						return _modifyAgreementWithSpecifics(agreementId); // returns the same agreement id, however,
+						// the _modifyAgreementWithSpecifics has altered the PDF anchor placeholders
+					})
+					.then(function(modifiedAgreement) {
+						document.getElementById('message').innerText = 'Agreement ' + modifiedAgreement + ' modified successfully. Ready to sign.';
+					})
+					.catch(function(err) {
+						document.getElementById('result').innerText = 'Error in _handleWorkflowClientResponse promise: ' + err;
+					});
+				}
+				else {
+					document.getElementById('message').innerText = 'no response for _handleWorkflowClientResponse '
+					return null;
+				}
+			}
+			catch(err){
+				document.getElementById('result').innerText = 'hummph in _handleWorkflowClientResponse ...' +  err.message;
+				return null;
+			}
+		}
+
+		function startWorkFlowClient() {
+			// make the PDF attached to the UI Page record a Adobe Sign transient document
+			//      Upload the PDF: Use the POST /transientDocuments endpoint to upload the 
+			//		PDF if not already done.
+			// obtain a transient document id
+			// use the transient document as the basis of an Adobe Sign Agreement
+			//      Use the POST /agreements endpoint to create the agreement.
+			// update the anchor tags of the transient document using Adobe Sign API(s)
+			//      Modify the Agreement with Form Fields or Anchor Tags: After creating the 
+			//		agreement, use the PUT method on /agreements/{agreementId} to modify the 
+			//		fields in the agreement. You can update fields such as form fields (using anchors) 
+			//		or merge fields (pre-populated text fields).
+			try {
+				var fileInput = document.getElementById('pdfFile');
+				var file = fileInput.files[0];
+				if (!file) {
+					alert('Please select a PDF file to download.');
+					return;
+				}
+				else {
+					alert('You selected this file for download: ' + file.name);
+				}				
+				var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
+				var recordSysId = '0e9b89f41b049e1076f215ff034bcb7f'; // Set this to the sys_id of the current record
+
+				var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+				ga.addParam('sysparm_name', 'readAttIntoBase64');
+				ga.addParam('tableName', tableName);
+				ga.addParam('fileName', file.name);				
+				ga.addParam('recordSysId', recordSysId);	
+				document.getElementById('result').innerText = 'download ga parms loaded for ' + file.name;
+
+				// Use an anonymous function to wrap the call and pass file.name
+				ga.getXMLAnswer(function(response) {
+					_handleWorkflowClientResponse(response, file.name); // Pass file.name to the callback
+				});
+			}
+			catch(err){
+				document.getElementById('result').innerText = 'hummph in startWorkFlowClient ...' +  error.message;
+
+			}
+		}
+
+// -----------------------------------------
 		function downloadPDF() {
 			try{
 				var fileInput = document.getElementById('pdfFile');
@@ -126,7 +607,7 @@
 					alert('You selected this file for download: ' + file.name);
 				}				
 				var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
-				var recordSysId = '0e9b89f41b049e1076f215ff034bcb7f'; // Set this to the sys_id of the record
+				var recordSysId = '0e9b89f41b049e1076f215ff034bcb7f'; // Set this to the sys_id of the current record
 
 				var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
 				ga.addParam('sysparm_name', 'readAttIntoString');
@@ -134,7 +615,10 @@
 				ga.addParam('fileName', file.name);				
 				ga.addParam('recordSysId', recordSysId);	
 				document.getElementById('result').innerText = 'download ga parms loaded for ' + file.name;
-				ga.getXMLAnswer(_handleDownloadResponse);
+				// Use an anonymous function to wrap the call and pass file.name
+				ga.getXMLAnswer(function(response) {
+					_handleWorkflowClientResponse(response, file.name); // Pass file.name to the callback
+				});
 			}
 			catch(error){
 				document.getElementById('result').innerText = 'hummph in download ...' +  error.message;
@@ -201,74 +685,9 @@
 
 		function _handleDownloadResponse(response) {
 			if(response !== undefined){
-				var dataFromScriptInclude = JSON.parse(response);
+				var dataFromScriptInclude = JSON.parse(response); 
 				document.getElementById('message').innerText = 'response: ' + dataFromScriptInclude.slice(0,20);
 				var dataAsStringFromScriptInclude = dataFromScriptInclude.toString();
-				if(dataAsStringFromScriptInclude){
-					try {
-						// // Ensure the string is correctly padded
-						// while (dataAsStringFromScriptInclude.length % 4 !== 0) {
-						// 	dataAsStringFromScriptInclude += "=";
-						// }
-						var stringArray = '';
-						var binaryArray = [];
-						if (dataAsStringFromScriptInclude.includes(',')) {
-							document.getElementById('message').innerText = 'response: ' + dataAsStringFromScriptInclude.slice(0,20) ;
-								
-						// Step 1: Split the CSV string into an array of strings
-							if (dataAsStringFromScriptInclude && typeof dataAsStringFromScriptInclude === 'string') {
-								stringArray = dataAsStringFromScriptInclude.split(',');
-							} else {
-								// Handle the case where dataAsStringFromScriptInclude is not a valid string
-								var str = dataAsStringFromScriptInclude.toString();
-								document.getElementById('message').innerText = 'str is ' + str.slice(0,20);
-								stringArray = str.split(',');
-							}
-
-						// Step 2: Convert each string to an integer
-							var intArray = stringArray.map(function(num) {
-								return parseInt(num, 10);
-							});
-						
-						// Step 3: Create a Uint8Array from the integer array
-							binaryArray = new Uint8Array(intArray);
-						}
-						else {
-							document.getElementById('message').innerText = 'response has no commas';
-							while (dataAsStringFromScriptInclude.length % 4 !== 0) {
-								dataAsStringFromScriptInclude += "=";
-							}
-							var len = dataAsStringFromScriptInclude.length;
-							var binaryData = new Uint8Array(len);
-							for (var i = 0; i < len; i++) {
-								binaryData[i] = dataAsStringFromScriptInclude.charCodeAt(i);
-							}
-						}
-						var blob = new Blob([binaryArray], { type: 'application/pdf' });	
-						// document.getElementById('message').innerText = 'blob is set';
-
-						var fileInput = document.getElementById('pdfFile');
-						var file = fileInput.files[0];
-
-
-						// Step 4: Create a download link and trigger the download
-						var link = document.createElement('a');
-						// urlOfTheInvoiceToBeSigned = window.URL.createObjectURL(blob);;
-						link.href = window.URL.createObjectURL(blob);
-						link.download = file.name; // 'file.pdf';
-						link.click();
-
-						// document.getElementById('message').innerText = 'link was clicked';
-						// Optionally, revoke the object URL after the download
-						window.URL.revokeObjectURL(link.href);	
-					}
-					catch(error){
-						document.getElementById('result').innerText = 'hummph in download handler ...' +  error.message;
-					}
-			
-				} else {
-					document.getElementById('result').innerText = 'hummph in download handler  ... no base64String' ;
-				}
 			}
 			else {
 				document.getElementById('result').innerText = 'hummph in download handler  ... no download response' ;
@@ -514,6 +933,245 @@
 
 		}
 
+		function startWorkflow() {
+			try {
+				var fileInput = document.getElementById('pdfFile');
+				var file = fileInput.files[0];
+				if (!file) {
+					alert('Please select a PDF file to download.');
+					return;
+				}
+				else {
+					alert('You selected this file for download: ' + file.name);
+				}				
+				var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
+				var recordSysId = '0e9b89f41b049e1076f215ff034bcb7f'; // Set this to the sys_id of the current record
+
+				var arrOfEmails = getAllEmailInputs();
+
+				var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+				ga.addParam('sysparm_name', 'createAdobeSignAgreementObtainAgreementId');
+				ga.addParam('tableName', tableName);
+				ga.addParam('recordSysId', recordSysId);
+				ga.addParam('arrOfEmails', arrOfEmails);
+				ga.addParam('pdfNameWithPDFextension', file.name);
+				document.getElementById('result').innerText = 'startWorkflow ga parms loaded for ' + file.name;
+				ga.getXMLAnswer(_handleWorkflowResponse);				
+
+
+				// ga.addParam('attachmentSysId', recordSysId);	
+				// ga.addParam('arrOfEmails',arrOfEmails);
+				// document.getElementById('result').innerText = 'startWorkflow ga parms loaded for ' + file.name;
+				// ga.getXMLAnswer(_handleWorkflowResponse);
+			}
+			catch (error){
+				document.getElementById('result').innerText = 'hummph in startWorkflow ...' +  error.message;
+
+			}
+		}
+
+		function _handleWorkflowResponse(response){
+			if(response !== undefined){
+				var dataFromScriptInclude = response; //JSON.parse(response);
+				if(dataFromScriptInclude){
+					document.getElementById('message').innerText = 'response: ' + dataFromScriptInclude?.slice(0,20);
+				}
+				else {
+					document.getElementById('message').innerText = 'no response from Adobe Sign '
+				}
+				return;
+				// var dataAsStringFromScriptInclude = dataFromScriptInclude.toString();
+				// if(dataAsStringFromScriptInclude){
+				// 	try {
+				// 		var stringArray = '';
+				// 		var binaryArray = [];
+				// 		if (dataAsStringFromScriptInclude.includes(',')) {
+				// 			document.getElementById('message').innerText = 'response: ' + dataAsStringFromScriptInclude.slice(0,20) ;
+								
+				// 		// Step 1: Split the CSV string into an array of strings
+				// 			if (dataAsStringFromScriptInclude && typeof dataAsStringFromScriptInclude === 'string') {
+				// 				stringArray = dataAsStringFromScriptInclude.split(',');
+				// 			} else {
+				// 				// Handle the case where dataAsStringFromScriptInclude is not a valid string
+				// 				var str = dataAsStringFromScriptInclude.toString();
+				// 				document.getElementById('message').innerText = 'str is ' + str.slice(0,20);
+				// 				stringArray = str.split(',');
+				// 			}
+
+				// 		// Step 2: Convert each string to an integer
+				// 			var intArray = stringArray.map(function(num) {
+				// 				return parseInt(num, 10);
+				// 			});
+						
+				// 		// Step 3: Create a Uint8Array from the integer array
+				// 			binaryArray = new Uint8Array(intArray);
+				// 		}
+				// 		else {
+				// 			document.getElementById('message').innerText = 'response has no commas';
+				// 			while (dataAsStringFromScriptInclude.length % 4 !== 0) {
+				// 				dataAsStringFromScriptInclude += "=";
+				// 			}
+				// 			var len = dataAsStringFromScriptInclude.length;
+				// 			var binaryData = new Uint8Array(len);
+				// 			for (var i = 0; i < len; i++) {
+				// 				binaryData[i] = dataAsStringFromScriptInclude.charCodeAt(i);
+				// 			}
+				// 		}
+				// 		var blob = new Blob([binaryArray], { type: 'application/pdf' });	
+				// 		// document.getElementById('message').innerText = 'blob is set';
+
+				// 		var fileInput = document.getElementById('pdfFile');
+				// 		var file = fileInput.files[0];
+
+
+				// 		// Step 4: Create a download link and trigger the download
+				// 		var link = document.createElement('a');
+				// 		// urlOfTheInvoiceToBeSigned = window.URL.createObjectURL(blob);;
+				// 		link.href = window.URL.createObjectURL(blob);
+				// 		link.download = file.name; // 'file.pdf';
+				// 		link.click();
+
+				// 		// document.getElementById('message').innerText = 'link was clicked';
+				// 		// Optionally, revoke the object URL after the download
+				// 		window.URL.revokeObjectURL(link.href);	
+				// 	}
+				// 	catch(error){
+				// 		document.getElementById('result').innerText = 'hummph in download handler ...' +  error.message;
+				// 	}
+			
+				// } else {
+				// 	document.getElementById('result').innerText = 'hummph in download handler  ... no base64String' ;
+				// }
+			}
+			else {
+				document.getElementById('result').innerText = 'hummph in startWorkflow handler  ... no download response' ;
+			}			
+		}
+
+		function _handleReadAttIntoString(response) {
+			if(response !== undefined){
+				var dataFromScriptInclude = JSON.parse(response);
+				document.getElementById('message').innerText = 'response: ' + dataFromScriptInclude.slice(0,20);
+				var dataAsStringFromScriptInclude = dataFromScriptInclude.toString();
+			}
+			else {
+				document.getElementById('result').innerText = 'hummph in download handler  ... no download response' ;
+			}
+		}
+
+		function getAttachedPdfAsBinary(){
+			try{
+				var fileInput = document.getElementById('pdfFile');
+				var file = fileInput.files[0];
+				if (!file) {
+					alert('Please select a PDF file to download.');
+					return;
+				}
+				else {
+					alert('You selected this file for download: ' + file.name);
+				}				
+				var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
+				var recordSysId = '0e9b89f41b049e1076f215ff034bcb7f'; // Set this to the sys_id of the current record
+
+				var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+				ga.addParam('sysparm_name', 'readAttIntoString');
+				ga.addParam('tableName', tableName);
+				ga.addParam('fileName', file.name);				
+				ga.addParam('recordSysId', recordSysId);	
+				document.getElementById('result').innerText = 'download ga parms loaded for ' + file.name;
+				ga.getXMLAnswer(_handleReadAttIntoString);
+			}
+			catch(error){
+				document.getElementById('result').innerText = 'hummph in download ...' +  error.message;
+			}			
+		}
+
+
+		function createSignersJson(emailValues) {
+			document.getElementById('result').innerText = 'createSignersJson';
+			var signers = [];
+			
+			// Loop through the emailValues array
+			emailValues.forEach(function(email, index) {
+				// Create an object for each signer
+				var signer = {
+					email: email,
+					placeholder: "Name" + (index + 1), // Generate placeholder as "Signer1", "Signer2", etc.
+					recipientIndex: index + 1 // Index starts at 1 for recipientIndex
+				};
+				
+				// Add the signer object to the signers array
+				signers.push(signer);
+			});
+
+			return agreementPayload(signers);
+		}		
+
+		function agreementPayload(signers,urlOfTheInvoiceToBeSigned) {
+			document.getElementById('result').innerText = 'agreementPayload';
+			return {
+				"fileInfos": [
+					{
+						"documentURL": {
+							"url": urlOfTheInvoiceToBeSigned
+						}
+					}
+				],
+				"name": "Agreement for PDF Document",
+				"recipientSetInfos": signers.map(function(signer) {
+					return {
+						"recipientSetMemberInfos": [
+							{
+								"email": signer.email
+							}
+						],
+						"recipientSetRole": "SIGNER"
+					};
+				}),
+				"signatureType": "ESIGN",
+				"state": "IN_PROCESS", // You can also use DRAFT if you want to review it before sending
+				"formFieldLayerTemplates": [
+					{
+						"name": "SignatureFieldsLayer",
+						"formFields": [signers]
+					}
+				]
+			};			
+		}
+				
+		function canIconnect(){
+			var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+			ga.addParam('sysparm_name', 'canIconnect');
+			ga.addParam('aString', 'anything');
+			ga.getXMLAnswer(function(response) {
+				var result = JSON.parse(response);
+				if(result){
+					document.getElementById('result').innerText = result;
+				}
+				else {
+					document.getElementById('result').innerText = 'no result from canIconnect';
+				}
+				
+			});
+		}
+
+		function canIgetSysId(){
+			var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+			ga.addParam('sysparm_name', 'getUIPageSysId');
+			ga.addParam('uiPageName', 'ApproveAttachedInvoice');
+			ga.getXMLAnswer(function(response) {
+				var result = response; // JSON.parse(response);
+				if(result){
+					document.getElementById('result').innerText = result;
+				}
+				else {
+					document.getElementById('result').innerText = 'no result from canIgetSysId';
+				}
+				
+			});
+		}
+
+
 ]]></client_script>
         <description>upload a PDF to the attachment table (sys_attachment) in ServiceNow from a UI Page using client-side JavaScript, you can use the ServiceNow GlideAjax API in combination with a server-side Script Include to handle the file upload and return the necessary information.</description>
         <direct>false</direct>
@@ -538,13 +1196,29 @@
 	<br/>
     <div id="message"></div>
 	<br />
-	<label for="signer1">Signer 1 Email:</label>
-	<input type="email" id="signer1" /><input type="text" id="email1" value="empty"/>
-	<br />
-	<label for="signer2">Signer 2 Email:</label>
-	<input type="email" id="signer2" /><input type="text" id="email2" value="empty"/>
-	<br />
-	<button onclick="routeForSignature()">Route attached to Adobe Sign</button>
+    <label for="preparer">Signer 1 Email:</label>
+    <input type="email" id="preparer" /><!-- <input type="text" id="email1" value="empty"/> -->
+    <br />
+    <label for="signer1">Signer 1 Email:</label>
+    <input type="email" id="signer1" /><!-- <input type="text" id="email2" value="empty"/> -->
+    <br />
+    <label for="signer2">Signer 2 Email:</label>
+    <input type="email" id="signer2" /><!-- <input type="text" id="email3" value="empty"/> -->
+    <br />
+
+    <script>
+        // Set default email values
+        document.getElementById('preparer').value = 'sfarkas@dsny.nyc.gov';
+        document.getElementById('signer1').value = 'sefarkas1@gmail.com';
+        document.getElementById('signer2').value = 'sefarkas@yahoo.com';
+ 
+        // Optionally, you can also set the text input fields if needed
+        // document.getElementById('email1').value = 'sfarkas@dsny.nyc.gov';
+        // document.getElementById('email2').value = 'sefarkas1@gmail.com';
+        // document.getElementById('email3').value = 'sefarkas@yahoo.com'; 
+    </script>
+
+	<button onclick="startWorkFlowClient()">Route attached to Adobe Sign</button>
 
 	
 </body>
@@ -556,13 +1230,13 @@
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-08-13 14:20:36</sys_created_on>
         <sys_id>0e9b89f41b049e1076f215ff034bcb7f</sys_id>
-        <sys_mod_count>187</sys_mod_count>
+        <sys_mod_count>237</sys_mod_count>
         <sys_name>ApproveAttachedInvoice</sys_name>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
         <sys_update_name>sys_ui_page_0e9b89f41b049e1076f215ff034bcb7f</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-08-20 21:21:26</sys_updated_on>
+        <sys_updated_on>2024-09-06 16:49:15</sys_updated_on>
     </sys_ui_page>
 </record_update>

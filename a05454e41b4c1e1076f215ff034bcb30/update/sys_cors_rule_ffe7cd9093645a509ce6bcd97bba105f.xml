@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_cors_rule">
+    <sys_cors_rule action="INSERT_OR_UPDATE">
+        <delete>false</delete>
+        <domain>https://api.na1.adobesign.com</domain>
+        <exposed_headers>Origin, X-Requested With, Content-Type,Authorization,Access-Control-Allow-Origin,X-Content-Type-Options:no-sniff</exposed_headers>
+        <get>true</get>
+        <max_age>0</max_age>
+        <name>SEF Desktop for Adobe Sign APIs</name>
+        <patch>false</patch>
+        <post>true</post>
+        <put>true</put>
+        <rest_api>4a60e0641b8c1e1076f215ff034bcb2f</rest_api>
+        <sys_class_name>sys_cors_rule</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-09-05 21:05:34</sys_created_on>
+        <sys_id>ffe7cd9093645a509ce6bcd97bba105f</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>SEF Desktop for Adobe Sign APIs</sys_name>
+        <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
+        <sys_update_name>sys_cors_rule_ffe7cd9093645a509ce6bcd97bba105f</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-09-05 21:05:58</sys_updated_on>
+    </sys_cors_rule>
+</record_update>

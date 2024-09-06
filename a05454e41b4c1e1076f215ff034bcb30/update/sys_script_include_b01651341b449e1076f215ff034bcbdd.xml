@@ -62,6 +62,10 @@ AAIfileUploadUtility.prototype = Object.extendsObject(global.AbstractAjaxProcess
         }
     },
 
+	createAdobeSignTransDocId: function() {
+
+	},
+
     createAdobeSignAgreement: function(lclAgreementPayload) {
         try {
             // Create the RESTMessageV2 object
@@ -96,20 +100,1201 @@ AAIfileUploadUtility.prototype = Object.extendsObject(global.AbstractAjaxProcess
         }
     },
 
+	createAdobeSignAgreementFullModel: function(transientDocumentId, poSysId) {
+		var dateCreted = new Date().toISOString(); 
+		return {
+		"fileInfos": [
+			{
+			"document": {
+				"createdDate": dateCreted,
+				"id": transientDocumentId,
+				"label": "",
+				"numPages": 10,
+				"mimeType": "application/pdf",
+				"name": poSysId
+			},
+			"label": "",
+			"libraryDocumentId": "",
+			"notarize": false,
+			"transientDocumentId": "",
+			"urlFileInfo": {
+				"mimeType": "",
+				"name": "",
+				"url": ""
+			}
+			}
+		],
+		"name": "",
+		"participantSetsInfo": [
+			{
+			"order": 1,
+			"role": "",
+			"electronicSealId": "",
+			"id": "",
+			"label": "",
+			"memberInfos": [
+				{
+				"deliverableEmail": false,
+				"email": "",
+				"id": "",
+				"name": "",
+				"phoneDeliveryInfo": {
+					"countryCode": "",
+					"countryIsoCode": "",
+					"phone": ""
+				},
+				"securityOption": {
+					"authenticationMethod": "",
+					"digAuthInfo": {
+					"providerId": "",
+					"providerDesc": "",
+					"providerName": ""
+					},
+					"nameInfo": {
+					"firstName": "",
+					"lastName": ""
+					},
+					"notaryAuthentication": "",
+					"password": "",
+					"phoneInfo": {
+					"countryCode": "",
+					"countryIsoCode": "",
+					"phone": ""
+					}
+				}
+				}
+			],
+			"name": "",
+			"privateMessage": "",
+			"providerParticipationInfo": {
+				"label": "",
+				"participationId": "",
+				"participationSetId": ""
+			},
+			"visiblePages": [
+				""
+			]
+			}
+		],
+		"signatureType": "",
+		"state": "",
+		"agreementSettingsInfo": {
+			"canEditAgreementSettings": false,
+			"canEditElectronicSeals": false,
+			"canEditFiles": false,
+			"hipaaEnabled": false
+		},
+		"ccs": [
+			{
+			"email": "",
+			"label": "",
+			"visiblePages": [
+				""
+			]
+			}
+		],
+		"createdDate": "",
+		"createdGroupId": "",
+		"deviceInfo": {
+			"applicationDescription": "",
+			"deviceDescription": "",
+			"deviceTime": ""
+		},
+		"documentRetentionAppliedDate": "date",
+		"documentVisibilityEnabled": false,
+		"emailOption": {
+			"sendOptions": {
+			"completionEmails": "",
+			"inFlightEmails": "",
+			"initEmails": ""
+			}
+		},
+		"expirationTime": "",
+		"externalId": {
+			"id": ""
+		},
+		"firstReminderDelay": 1,
+		"formFieldGenerators": [
+			{
+			"formFieldDescription": {
+				"alignment": "",
+				"backgroundColor": "",
+				"borderColor": "",
+				"borderStyle": "",
+				"borderWidth": 0,
+				"calculated": false,
+				"conditionalAction": {
+				"action": "",
+				"anyOrAll": "",
+				"predicates": [
+					{
+					"fieldLocationIndex": 1,
+					"fieldName": "",
+					"operator": "",
+					"value": ""
+					}
+				]
+				},
+				"contentType": "",
+				"currency": "",
+				"defaultValue": "",
+				"displayFormat": "",
+				"displayFormatType": "",
+				"displayLabel": "",
+				"fontColor": "",
+				"fontName": "",
+				"fontSize": 0,
+				"hiddenOptions": [
+				""
+				],
+				"hyperlink": {
+				"documentLocation": {
+					"height": 0,
+					"left": 0,
+					"pageNumber": 1,
+					"top": 0,
+					"width": 0
+				},
+				"linkType": "",
+				"url": ""
+				},
+				"inputType": "",
+				"masked": false,
+				"maskingText": "",
+				"maxLength": 1,
+				"maxValue": 0,
+				"minLength": 1,
+				"minValue": 0,
+				"origin": "",
+				"radioCheckType": "",
+				"readOnly": false,
+				"required": false,
+				"tooltip": "",
+				"urlOverridable": false,
+				"validation": "",
+				"validationData": "",
+				"validationErrMsg": "",
+				"valueExpression": "",
+				"visible": false,
+				"visibleOptions": [
+				""
+				]
+			},
+			"formFieldNamePrefix": "",
+			"generatorType": "",
+			"participantSetName": "",
+			"anchorTextInfo": {
+				"anchorText": "",
+				"anchoredFormFieldLocation": {
+				"height": 0,
+				"width": 0,
+				"offsetX": 0,
+				"offsetY": 0
+				},
+				"fileInfoLabel": "",
+				"pages": [
+				"int"
+				]
+			},
+			"linked": false
+			}
+		],
+		"formFieldLayerTemplates": [
+			{
+			"document": {
+				"createdDate": "date",
+				"id": "",
+				"label": "",
+				"numPages": 1,
+				"mimeType": "",
+				"name": ""
+			},
+			"label": "",
+			"libraryDocumentId": "",
+			"notarize": false,
+			"transientDocumentId": "",
+			"urlFileInfo": {
+				"mimeType": "",
+				"name": "",
+				"url": ""
+			}
+			}
+		],
+		"groupId": "",
+		"hasFormFieldData": false,
+		"hasSignerIdentityReport": false,
+		"id": "",
+		"isDocumentRetentionApplied": false,
+		"lastEventDate": "date",
+		"locale": "",
+		"mergeFieldInfo": [
+			{
+			"defaultValue": "",
+			"fieldName": ""
+			}
+		],
+		"message": "",
+		"notaryInfo": {
+			"appointment": "",
+			"notaryEmail": "",
+			"notaryType": "",
+			"note": "",
+			"payment": ""
+		},
+		"parentId": "",
+		"postSignOption": {
+			"redirectDelay": 1,
+			"redirectUrl": ""
+		},
+		"redirectOptions": [
+			{
+			"action": "",
+			"url": "",
+			"delay": 1
+			}
+		],
+		"reminderFrequency": "",
+		"securityOption": {
+			"contentProtectionPreference": {
+			"external": "",
+			"internal": ""
+			},
+			"openPassword": ""
+		},
+		"sendType": "",
+		"senderEmail": "",
+		"senderSigns": "",
+		"status": "",
+		"type": "",
+		"vaultingInfo": {
+			"enabled": false
+		},
+		"workflowId": ""
+		}
+	},
+
     type: 'AAIfileUploadUtility'
+});
+
+var AAIfileUploadUtilityGlobal = Class.create();
+AAIfileUploadUtilityGlobal.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+    // initialize: function() {},
+	canIconnect: function() {
+		/*
+		you may have noticed that we don't return any values from our function. We can if we 
+		want, but it is not necessary. The AbstractAjaxProcessor class (which is our 
+		superclass - which means we're extending it) has built-in functionality that returns 
+		the entire XML document when we're through. 
+		*/
+		var attrib = this.getParameter('aString');
+		var strResponse = 'correct response from AAIfileUploadUtilityGlobal canIconnect ' + attrib;
+		return JSON.stringify(strResponse);
+		//return strResponse;
+	},
+
+// ----------------------
+	_sleep: function(milliseconds) {
+		var start = new Date().getTime();
+		var countNonsense = 0;
+		while (new Date().getTime() - start < milliseconds) {
+			// Busy wait to simulate delay
+			countNonsense++;
+		}
+		return true;
+	},
+
+	_getPdfBytes: function(attachmentRowSysId, callback) {
+		try {
+			gs.info('_getPdfBytes started');
+
+			// Use GlideSysAttachment to retrieve the attachment content as a byte array
+			var attachment = new GlideSysAttachment();
+			var pdfBytes = null;
+			if (typeof attachment.getBytes !== 'function') {
+				throw new Error('_getPdfBytes: attachment.getBytes() is not a function');
+			}
+			else {
+				var gr = new GlideRecord('sys_attachment');
+				if (gr.get(attachmentRowSysId)) { // gr.get(), the system will naturally pause the script execution until the record is retrieved.
+					gs.info('_getPdfBytes: Attachment exists at the sys_attachment row with sys_id: ' + attachmentRowSysId);
+
+					var parentTable = gr.table_name;  // Parent table (e.g., 'incident')
+					var parentSysId = gr.table_sys_id;  // sys_id of the parent record
+					
+					var parentRecord = new GlideRecordSecure(parentTable);
+					if (parentRecord.get(parentSysId)) {
+						if (parentRecord.canRead()) {
+							gs.info('User has read access to the parent record in table: ' + parentTable);
+						} else {
+							throw new Error('User does NOT have read access to the parent record in table: ' + parentTable);
+						}
+					} else {
+						throw new Error('Parent record not found or user lacks access.');
+					}
+				} else {
+					throw new Error('Attachment not found or user has no permission.');
+				}
+				if (gr.get(attachmentRowSysId)) {
+					var attachmentSize = gr.size_bytes;  // Retrieve the size of the attachment in bytes
+					gs.info('Attachment size: ' + attachmentSize + ' bytes');
+					// SN DEV has a 5MB max attachment size limit
+					var maxAttachmentSize = gs.getProperty('glide.attachment.max_get_size', '5242880');  // Default to 5 MB if the property does not exist
+					gs.info('Max attachment size: ' + maxAttachmentSize + ' bytes');
+					if(attachmentSize > maxAttachmentSize ){
+						throw new Error('The attachment is larger than a single chunk of ' + maxAttachmentSize + ' bytes.')
+					}
+				} else {
+					gs.error('while testing for size, attachment to sys_attachment with row sys_id ' + attachmentRowSysId + ' is not found.');
+				}
+
+				pdfBytes = attachment.getBytes('sys_attachment', attachmentRowSysId);  
+				// Get bytes from the attachment
+				// The GlideSysAttachment.getBytes() method in ServiceNow returns a Java byte array (byte[]).
+
+				// Convert the byte array into a string (Base64 encoding)
+				
+				if (typeof pdfBytes !== 'object' ){
+					throw new Error('_getPdfBytes: Invalid pdfBytes. It is not an object.');
+				}
+				else if(!pdfBytes){
+					throw new Error('_getPdfBytes: Invalid pdfBytes. It is null (att to sys_attachment at sys_id of ' + attachmentRowSysId + ')');
+				}
+				else if(!(pdfBytes.length > 0)) {
+					throw new Error('_getPdfBytes: Invalid pdfBytes. It has no length.');
+				}
+				else {
+					var binaryString = GlideStringUtil.base64Encode(pdfBytes);
+					/*
+					When you pass a byte[] (Java byte array) to GlideStringUtil.base64Encode() 
+					in ServiceNow, the method will encode the byte array into a Base64-encoded 
+					string. This string can then be safely transmitted or stored, even if the 
+					original byte array represents binary data, such as a PDF or image.
+					*/
+
+					// Step 2: Create a Uint8Array from the binary string
+					var len = binaryString.length;
+					var binaryData = new Uint8Array(len);
+					for (var i = 0; i < len; i++) {
+						binaryData[i] = binaryString.charCodeAt(i);
+					}
+					//binaryData = '%PDF-1.6,' + binaryData + '%%EOF';
+					gs.info('_getPdfBytes: successful conversion pdfBytes to binaryData');
+					return binaryData;
+				}
+			}
+
+		} catch (error) {
+			gs.error('_getPdfBytes: Error retrieving pdfBytes: ' + error.message);
+			callback(error, null);  // Call the callback with an error
+		}
+	},
+
+
+	// Helper function to convert PDF bytes to Base64
+	_convertToBase64: function(pdfBytes,  callback) {
+		try {
+			gs.info( '_convertToBase64 started');
+			var pdfBase64 = new GlideStringUtil.base64Encode(pdfBytes);
+
+			if (!pdfBase64) {
+				throw new Error('Failed to encode pdfBytes to Base64');
+			}
+
+			gs.info( 'pdfBytes successfully converted to Base64');
+			callback(null, pdfBase64);  // Call the callback with Base64
+
+		} catch (error) {
+			gs.error('Error converting pdfBytes to Base64: ' + error.message);
+			callback(error, null);  // Call the callback with an error
+		}
+	},
+
+	createAdobeSignAgreementObtainAgreementId: function() {
+		var step = 'createAdobeSignAgreementObtainAgreementId function triggered';
+		var gsInfoCount = 0;
+		gs.info( step);
+
+		try {
+			// Step 1: Retrieve parameters
+			step = '2 get tableName';
+			var tableName = this.getParameter('tableName');
+			gs.info( step + ': ' + tableName);
+
+			step = '3 get recordSysId';
+			var recordSysId = this.getParameter('recordSysId');
+			gs.info( step + ': ' + recordSysId);
+
+			step = '4 get pdfNameWithPDFextension';
+			var pdfNameWithPDFextension = this.getParameter('pdfNameWithPDFextension');
+			gs.info( step + ': ' + pdfNameWithPDFextension);
+
+			step = '5 get arrOfEmails';
+			var arrOfEmails = this.getParameter('arrOfEmails');
+			gs.info( step + ': ' + JSON.stringify(arrOfEmails));
+
+			// Step 2: Validate arrOfEmails and ensure it's an array
+			step = '6 validate arrOfEmails';
+			if (typeof arrOfEmails === 'string') {
+				try {
+					arrOfEmails = JSON.parse(arrOfEmails);
+					gs.info( step + ' and JSON.parse made: ' + arrOfEmails);
+				} catch (e) {
+					gs.error(e.message + ' at ' + step);
+					throw new Error('Failed to parse arrOfEmails from string: ' + arrOfEmails);
+				}
+			}
+
+			if (!(arrOfEmails instanceof Array) || arrOfEmails.length !== 3) {
+				if (arrOfEmails.includes(',')) {
+					arrOfEmails = arrOfEmails.split(',');
+					gs.info( step + ' and arrOfEmails.split made: ' + arrOfEmails.toString());
+				} else {
+					gs.error(' arrOfEmails has no commas');
+					throw new Error('arrOfEmails is not a valid array or does not have a length of 3.');
+				}
+			}
+			gs.info( '6.9 arrOfEmails is ready: ' + JSON.stringify(arrOfEmails));
+			// Step 3: Query sys_attachment to get the attachment
+			step = '7 initialize GlideRecord';
+			gs.info( step);
+			var attGr = new GlideRecord('sys_attachment');
+			gs.info( 'attachment search parameters: ' + ' tbl:' + tableName + ', sys_id:' + recordSysId + ', pdf:' +  pdfNameWithPDFextension);
+			attGr.addQuery('table_name', tableName);
+			attGr.addQuery('table_sys_id', recordSysId);
+			attGr.addQuery('file_name', pdfNameWithPDFextension);
+			attGr.orderByDesc('sys_updated_on');
+			gs.info( '7.5 try to execute attGr');
+			attGr.query();
+			if (attGr.next()) {
+				step = '8 attachment found';
+				var attachmentSysId = attGr.sys_id;
+				gs.info( step + ': ' + attachmentSysId);
+
+				// Step 4: Get PDF bytes with callback
+				this._getPdfBytes(attachmentSysId,  function(err, pdfBytes) {
+					if (err) {
+						gs.error('Error passed into _getPdfBytes: ' + err.message);
+						throw new Error('Error in _getPdfBytes: ' + err.message);
+					}
+
+					if(!pdfBytes){
+						gs.error('no pdfBytes for _convertToBase64');
+						throw new Error('no pdfBytes for _convertToBase64');						
+					}
+					// Step 5: Convert PDF bytes to Base64 with callback
+					this._convertToBase64(pdfBytes,  function(err, pdfBase64) {
+						if (err) {
+							gs.error('Error passed into _convertToBase64: ' + err.message);
+							throw new Error('Error in _convertToBase64: ' + err.message);
+						}
+
+						// Step 6: Construct payload for Adobe Sign
+						step = '9 constructing Adobe Sign payload';
+						gs.info(step);
+						var payload = {
+							"fileInfos": [{
+								"name": pdfNameWithPDFextension,
+								"file": pdfBase64
+							}],
+							"formFields": [
+								{
+									"name": "PeriodDate",
+									"inputType": "TEXT_FIELD",
+									"required": true,
+									"anchorText": "PeriodDate",
+									"tooltip": "Enter the period date."
+								},
+								{
+									"name": "Name1",
+									"inputType": "TEXT_FIELD",
+									"anchorText": "Name1",
+									"defaultValue": arrOfEmails[1],
+									"tooltip": "Enter the first signator's name."
+								},
+								{
+									"name": "Signature1",
+									"inputType": "SIGNATURE",
+									"anchorText": "Signature1",
+									"contentType": "SIGNATURE",
+									"assignee": arrOfEmails[1]
+								},
+								{
+									"name": "Name2",
+									"inputType": "TEXT_FIELD",
+									"anchorText": "Name2",
+									"defaultValue": arrOfEmails[2],
+									"tooltip": "Enter the second signator's name."
+								},
+								{
+									"name": "Signature2",
+									"inputType": "SIGNATURE",
+									"anchorText": "Signature2",
+									"contentType": "SIGNATURE",
+									"assignee": arrOfEmails[2]
+								}
+							],
+							"name": "Agreement for " + pdfNameWithPDFextension,
+							"signatureType": "ESIGN",
+							"state": "DRAFT"
+						};
+
+						// Step 7: Send Adobe Sign API request
+						step = '10 sending Adobe Sign API request';
+						var request = new sn_ws.RESTMessageV2();
+						request.setHttpMethod("post");
+						request.setEndpoint("https://api.na1.adobesign.com/api/rest/v6/transientDocuments");
+
+						var bearerToken = "3AAABLblqZhBY711UyiQNecRtXMX2FR1XVyiNO1bqAS4JmYtGvKYCH2W1en6YNaTYjJQcn_CLkx2H9G6ENUWEYa4oqyWcts4w";
+						request.setRequestHeader("Authorization", "Bearer " + bearerToken);
+						request.setRequestHeader("Content-Type", "application/json");
+						request.setRequestBody(JSON.stringify(payload));
+						gs.info('11 try to execute Adobe Sign API with headers')
+						request.executeAsync().then(function(response) {
+							if(!response){
+								gs.info('12.1 no response returned by Adobe Sign API');
+							}
+							else {
+								gs.info( '12.2 Adobe API call responded');
+								var responseBody = response.getBody();
+								var httpStatus = response.getStatusCode();
+
+								if (httpStatus === 201) {
+									var responseJson = JSON.parse(responseBody);
+									var agreementId = responseJson.id;
+									gs.info( "13 Agreement created successfully. Agreement ID: " + agreementId);
+								} else {
+									gs.error("Failed to create agreement. Status Code: " + httpStatus + ". Response: " + responseBody);
+								}							
+							}
+						});
+					});
+				});
+			} else {
+				gs.error('Attachment not found for record ' + recordSysId);
+			}
+
+		} catch (error) {
+			gs.error('Error in createAdobeSignAgreementObtainAgreementId: ' + error.message + ' at step ' + step);
+			throw new Error(error.message + ' at createAdobeSignAgreementObtainAgreementId step ' + step);
+		}
+	},
+// -----------------------
+
+
+
+	createAdobeSignAgreementFullModel: function() {
+		var transientDocumentId = getParameter('transientDocumentId');
+		var poSysId = getParameter('poSysId');
+		var arrOfEmails = this.getParameter('arrOfEmails'); // pass in an array
+		var dateCreted = new Date().toISOString(); 
+
+		return {
+		"fileInfos": [
+			{
+			"document": {
+				"createdDate": dateCreted,
+				"id": transientDocumentId,
+				"label": "",
+				"numPages": 10,
+				"mimeType": "application/pdf",
+				"name": ""
+			},
+			"label": "",
+			"libraryDocumentId": "",
+			"notarize": false,
+			"transientDocumentId": transientDocumentId,
+			"urlFileInfo": {
+				"mimeType": "",
+				"name": "",
+				"url": ""
+			}
+			}
+		],
+		"name": poSysId, //  name of the agreement that will be used to identify it, in emails, website and other places,
+		"participantSetsInfo": [
+			{
+			"order": 1,
+			"role": "FORM_FILLER",
+			"electronicSealId": "",
+			"id": "",
+			"label": "", // for custom workflows, n/a here
+			"memberInfos": [
+				{
+				"deliverableEmail": false,
+				"email": arrOfEmails[0],
+				"id": "",
+				"name": "",
+				"phoneDeliveryInfo": {
+					"countryCode": "",
+					"countryIsoCode": "",
+					"phone": ""
+				},
+				"securityOption": {
+					"authenticationMethod": "",
+					"digAuthInfo": {
+					"providerId": "",
+					"providerDesc": "",
+					"providerName": ""
+					},
+					"nameInfo": {
+					"firstName": "",
+					"lastName": ""
+					},
+					"notaryAuthentication": "",
+					"password": "",
+					"phoneInfo": {
+					"countryCode": "",
+					"countryIsoCode": "",
+					"phone": ""
+					}
+				}
+				}
+			],
+			"name": "",
+			"privateMessage": "",
+			"providerParticipationInfo": {
+				"label": "",
+				"participationId": "",
+				"participationSetId": ""
+			},
+			"visiblePages": [
+				""
+			]
+			}
+		],
+		"signatureType": "ESIGN",
+		"state": "DRAFT", //  ['AUTHORING' or 'DRAFT' or 'IN_PROCESS' or 'RESTART']
+		"agreementSettingsInfo": {
+			"canEditAgreementSettings": false,
+			"canEditElectronicSeals": false,
+			"canEditFiles": false,
+			"hipaaEnabled": false
+		},
+		"ccs": [
+			{
+			"email": "",
+			"label": "",
+			"visiblePages": [
+				""
+			]
+			}
+		],
+		"createdDate": "",
+		"createdGroupId": "",
+		"deviceInfo": {
+			"applicationDescription": "",
+			"deviceDescription": "",
+			"deviceTime": ""
+		},
+		"documentRetentionAppliedDate": "date",
+		"documentVisibilityEnabled": false,
+		"emailOption": {
+			"sendOptions": {
+			"completionEmails": "",
+			"inFlightEmails": "",
+			"initEmails": ""
+			}
+		},
+		"expirationTime": "",
+		"externalId": {
+			"id": ""
+		},
+		"firstReminderDelay": 1,
+		"formFieldGenerators": [
+			{
+			"formFieldDescription": {
+				"alignment": "",
+				"backgroundColor": "",
+				"borderColor": "",
+				"borderStyle": "",
+				"borderWidth": 0,
+				"calculated": false,
+				"conditionalAction": {
+				"action": "",
+				"anyOrAll": "",
+				"predicates": [
+					{
+					"fieldLocationIndex": 1,
+					"fieldName": "",
+					"operator": "",
+					"value": ""
+					}
+				]
+				},
+				"contentType": "",
+				"currency": "",
+				"defaultValue": "",
+				"displayFormat": "",
+				"displayFormatType": "",
+				"displayLabel": "",
+				"fontColor": "",
+				"fontName": "",
+				"fontSize": 0,
+				"hiddenOptions": [
+				""
+				],
+				"hyperlink": {
+				"documentLocation": {
+					"height": 0,
+					"left": 0,
+					"pageNumber": 1,
+					"top": 0,
+					"width": 0
+				},
+				"linkType": "",
+				"url": ""
+				},
+				"inputType": "",
+				"masked": false,
+				"maskingText": "",
+				"maxLength": 1,
+				"maxValue": 0,
+				"minLength": 1,
+				"minValue": 0,
+				"origin": "",
+				"radioCheckType": "",
+				"readOnly": false,
+				"required": false,
+				"tooltip": "",
+				"urlOverridable": false,
+				"validation": "",
+				"validationData": "",
+				"validationErrMsg": "",
+				"valueExpression": "",
+				"visible": false,
+				"visibleOptions": [
+				""
+				]
+			},
+			"formFieldNamePrefix": "",
+			"generatorType": "",
+			"participantSetName": "",
+			"anchorTextInfo": {
+				"anchorText": "",
+				"anchoredFormFieldLocation": {
+				"height": 0,
+				"width": 0,
+				"offsetX": 0,
+				"offsetY": 0
+				},
+				"fileInfoLabel": "",
+				"pages": [
+				"int"
+				]
+			},
+			"linked": false
+			}
+		],
+		"formFieldLayerTemplates": [
+			{
+			"document": {
+				"createdDate": "date",
+				"id": "",
+				"label": "",
+				"numPages": 1,
+				"mimeType": "",
+				"name": ""
+			},
+			"label": "",
+			"libraryDocumentId": "",
+			"notarize": false,
+			"transientDocumentId": "",
+			"urlFileInfo": {
+				"mimeType": "",
+				"name": "",
+				"url": ""
+			}
+			}
+		],
+		"groupId": "",
+		"hasFormFieldData": false,
+		"hasSignerIdentityReport": false,
+		"id": "", // The unique identifier of the agreement.If provided in POST, it will simply be ignored
+		"isDocumentRetentionApplied": false,
+		"lastEventDate": "date",
+		"locale": "",
+		"mergeFieldInfo": [
+			{
+			"defaultValue": dateCreted,
+			"fieldName": "PeriodDate"
+			},
+			{
+			"defaultValue": arrOfEmails[1],
+			"fieldName": "Name1"
+			},
+			{
+			"defaultValue": arrOfEmails[2],
+			"fieldName": "Name2"
+			},
+			{
+			"defaultValue": dateCreted,
+			"fieldName": "PeriodDate"
+			},
+			{
+			"defaultValue": dateCreted,
+			"fieldName": "PeriodDate"
+			}												
+		],
+		"message": "",
+		"notaryInfo": {
+			"appointment": "",
+			"notaryEmail": "",
+			"notaryType": "",
+			"note": "",
+			"payment": ""
+		},
+		"parentId": "",
+		"postSignOption": {
+			"redirectDelay": 1,
+			"redirectUrl": ""
+		},
+		"redirectOptions": [
+			{
+			"action": "",
+			"url": "",
+			"delay": 1
+			}
+		],
+		"reminderFrequency": "",
+		"securityOption": {
+			"contentProtectionPreference": {
+			"external": "",
+			"internal": ""
+			},
+			"openPassword": ""
+		},
+		"sendType": "",
+		"senderEmail": "",
+		"senderSigns": "NEVER", // ['FIRST' or 'LAST' or 'NEVER' or 'APPROVE' or 'ARCHIVE' or 'FORWARD' or 'SEQUENTIAL' or 'DELIVER' or 'FILL_SIGN' or 'SEND_ONLY_TO_SELF']:
+		"status": "",
+		"type": "",
+		"vaultingInfo": {
+			"enabled": false
+		},
+		"workflowId": ""
+		}
+	},
+
+    createAdobeSignAgreement: function() {
+        try {
+			var integrationKey = this.getParameter('integrationKey');
+			var stringifiedAttData = '';
+
+			var tableName = this.getParameter('tableName');
+			var recordSysId = this.getParameter('recordSysId'); //sys_id of the record that contains attachment
+			var fileName = this.getParameter('fileName');
+
+			var attGr = new GlideRecord('sys_attachment');  //go to sys_attachment table
+			attGr.addQuery('table_name', tableName); //specify your table name as second parameter
+			attGr.addQuery('table_sys_id', recordSysId); // sys_id of the row associated with the attachment you're trying to get
+			attGr.addQuery('file_name', fileName); // full name and extension of the attachment
+			attGr.orderByDesc('sys_updated_on'); //helps to retrieve the latest attachment to record
+			attGr.query();
+			if(attGr.next())
+			{
+				var gsa = new global.GlideSysAttachment();
+				var attachmentData = gsa.getBytes(attGr);
+				stringifiedAttData = JSON.stringify(attachmentData);
+			}			
+
+            // Create the RESTMessageV2 object
+            var request = new sn_ws.RESTMessageV2();
+            request.setHttpMethod("post");
+            request.setEndpoint("https://api.na1.adobesign.com/api/rest/v6/agreements");
+            
+            // Encode the credentials
+            request.setRequestHeader("Authorization", "Bearer " + integrationKey);
+            request.setRequestHeader("Content-Type", "application/json");
+            request.setRequestBody(JSON.stringify(lclAgreementPayload));
+
+            // Execute the request asynchronously
+            request.executeAsync().then(function(response) {
+                var responseBody = response.getBody();
+                var httpStatus = response.getStatusCode();
+
+                if (httpStatus === 201) {
+                    var responseJson = JSON.parse(responseBody);
+                    var agreementId = responseJson.id; // The ID of the newly created agreement
+                    gs.info( "Agreement created successfully. Agreement ID: " + agreementId);
+
+                } else {
+                    gs.error("Failed to create agreement. Status Code: " + httpStatus + ". Response: " + responseBody);
+                }
+            });
+        } catch (ex) {
+            gs.error("An exception occurred: " + ex.getMessage());
+        }
+    },
+
+	readAttIntoString: function() {
+		var tableName = this.getParameter('tableName');
+		var recordSysId = this.getParameter('recordSysId'); //sys_id of the record that contains attachment
+		var fileName = this.getParameter('fileName');
+
+		var attGr = new GlideRecord('sys_attachment');  //go to sys_attachment table
+		attGr.addQuery('table_name', tableName); //specify your table name as second parameter
+		attGr.addQuery('table_sys_id', recordSysId); // sys_id of the row associated with the attachment you're trying to get
+		attGr.addQuery('file_name', fileName); // full name and extension of the attachment
+		attGr.orderByDesc('sys_updated_on'); //helps to retrieve the latest attachment to record
+		attGr.query();
+		if(attGr.next())
+		{
+			var gsa = new global.GlideSysAttachment();
+			var attachmentData = gsa.getBytes(attGr);
+			return JSON.stringify(attachmentData); // --> base64EncodedPdf in the client uploadTransientDocument()
+		}
+	},
+
+	readAttIntoBase64: function() {
+		try {
+			var attGr = new GlideRecord('sys_attachment');  // Go to sys_attachment table
+			if(attGr === undefined || !attGr){
+				gs.error('readAttIntoBase64 new GlideRecord(sys_attachment) did not return an expected value');
+				return 'new GlideRecord for sys_attachment is broken';
+			}
+
+			var tableName = this.getParameter('tableName');
+			gs.info('readAttIntoBase64 tableName is: ' + tableName);
+			attGr.addQuery('table_name', tableName); // Specify your table name
+			
+			var recordSysId = this.getParameter('recordSysId'); // sys_id of the record that contains the attachment
+			gs.info('readAttIntoBase64 recordSysId is: ' + recordSysId);
+			attGr.addQuery('table_sys_id', recordSysId); // sys_id of the record with the attachment
+			
+			var fileName = this.getParameter('fileName');
+			gs.info('readAttIntoBase64 fileName is: ' + fileName);
+			attGr.addQuery('file_name', fileName); // Full name and extension of the attachment
+
+			attGr.orderByDesc('sys_updated_on'); // Get the latest attachment
+			attGr.query();
+			
+			if (attGr.next()) {
+				if(!!attGr || attGr !== undefined){
+					var attSysId = attGr.sys_id;
+					if(!attSysId) {
+						gs.info('readAttIntoBase64 attSysId is null');
+
+					}
+					else {
+						gs.info('readAttIntoBase64 attSysId has a value of: ' + attSysId);
+
+					}
+					var gsa = new global.GlideSysAttachment();
+					var attachmentData = gsa.getBytes(attGr); // Pass the GlideRecord to getBytes()
+					// The getBytes() method requires a GlideRecord pointing to a row in the sys_attachment table.
+
+					if (attachmentData !== undefined && !!attachmentData) { // not undefined and not null
+						gs.info('readAttIntoBase64 gsa.getBytes(attGr) returned a non-trivial value');
+						var base64EncodedData = GlideStringUtil.base64Encode(attachmentData); // Convert to Base64
+						return base64EncodedData; // Return the Base64 string to the client
+					} else {
+						gs.error('readAttIntoBase64 gsa.getBytes(attGr) did not return an expected attachmentData value');
+						throw new Error('readAttIntoBase64 gsa.getBytes(attGr) did not return an expected attachmentData value');
+					} 				
+				}
+				else {
+					gs.error('attGr has an unexpected value');
+					throw new Error('attGr has an unexpected value');
+
+				}
+			} else {
+				gs.error('attGr.next has an unexpected value');
+				throw new Error('No attachment found');
+			}
+		}
+		catch(err){
+			gs.error('readAttIntoBase64 returned an unexpected response because ' + err.message);
+		}
+
+	},
+
+
+    uploadPDFglobal: function() {
+		var result = {};
+		var step = 'after try start';
+		try {
+			var tableName = this.getParameter('tableName');
+			var recordSysId = this.getParameter('recordSysId');
+			var fileName = this.getParameter('fileName');
+			var filetype = this.getParameter('filetype');
+			var base64Content = this.getParameter('base64Content'); // a long string of encoded binary, Base64 content without the prefix
+
+			if(!tableName) {throw new Error('tableName not sent');}
+			if(!recordSysId) {throw new Error('recordSysId not sent');}
+			if(!fileName) {throw new Error('fileName not sent');}
+			if(!filetype) {throw new Error('filetype not sent');}
+			if(!base64Content) {throw new Error('base64Content not sent');}
+			result = {
+				attachmentSysId: 'attachmentSysId',
+				tableName: tableName,
+				recordSysId: recordSysId			
+			};
+			if(true){
+				step = 'before base64Encode';
+
+				// Base64 content is passed directly; assume it's stored or handled 
+				// by another system
+				// GlideStringUtil.base64Encode works only in global scope
+				var decodedBase64FileConent = GlideStringUtil.base64DecodeAsBytes(base64Content);  // this step is crucial
+				step = 'find the UI Page record';
+				var rec = new GlideRecord(tableName);
+				rec.get(recordSysId);
+
+				step = 'Check if the record was found';
+				if (rec.isValidRecord()) {
+					var attachment = new global.GlideSysAttachment(); 
+					// There is a scoping error in this version of SN where the GlideSysAttachment API.
+					// writeBase64(GlideRecord now_GR, String fileName, String contentType, String content_base64Encoded)
+					step = 'try to attach with writeBase64';
+					var attachmentSysId = attachment.write(rec, fileName, filetype, decodedBase64FileConent); 
+						// writeBase64 is only for scoped applications
+						// unfortunately, GlideStringUtil is only available in the global scope, so I made this script include global
+					step = 'after writeBase64';
+					if(attachmentSysId){
+						result = {
+								attachmentSysId: attachmentSysId,
+								tableName: tableName,
+								recordSysId: recordSysId
+						};
+					}
+					else {
+						result = {
+								attachmentSysId: '-1212',
+								tableName: 'attachmentSysId has no value',
+								recordSysId: '0'
+						};					
+					}
+	
+				} else {
+					result = {
+						attachmentSysId: '-2758',
+						tableName: 'invalid sys_id for tablename of ' + tableName,
+						recordSysId: recordSysId
+					};
+				}
+			}
+		} catch (error) {
+			result = {
+				attachmentSysId: '0',
+				tableName: 'Error: ' + error.message + ' at ' + step,
+				recordSysId: '0'
+			};
+		}
+        // Return the result as a JSON string
+        return JSON.stringify(result);
+	},
+
+    getUIPageSysId: function() {
+		var attrib = this.getParameter('uiPageName');
+        var uiPageGR = new GlideRecord('sys_ui_page');
+        uiPageGR.addQuery('name', attrib);
+        uiPageGR.query();
+        if (uiPageGR.next()) {
+            return uiPageGR.sys_id.toString();
+        }
+        return uiPageName + ' was not found.';
+    },
+
+	createAgreementFromPoInvoiceAsAttachment: function() {
+        try {
+			var createAgreementFullModel = this.getParameter('createAgreementFullModel')
+			var pdfNameWithPDFextension = this.getParameter('pdfNameWithPDFextension');
+			var arrOfEmails = this.getParameter('arrOfEmails'); // pass in an array
+
+			if(createAgreementFullModel) // attGr will be a sys_id of the row in the sys_attachment table
+			{
+
+				// Prepare the Adobe Sign API request
+				var request = new sn_ws.RESTMessageV2();
+				request.setHttpMethod("post");
+				request.setEndpoint("https://api.na1.adobesign.com/api/rest/v6/agreements");
+
+				// Integration Key
+		// 3AAABLblqZhBY711UyiQNecRtXMX2FR1XVyiNO1bqAS4JmYtGvKYCH2W1en6YNaTYjJQcn_CLkx2H9G6ENUWEYa4oqyWcts4w
+						// Replace this with your actual OAuth bearer token
+						var bearerToken = "3AAABLblqZhBY711UyiQNecRtXMX2FR1XVyiNO1bqAS4JmYtGvKYCH2W1en6YNaTYjJQcn_CLkx2H9G6ENUWEYa4oqyWcts4w"; 
+						// "your_oauth_access_token";
+						
+						// var adobeSignCredentials =  btoa(
+						// 'sfarkas@dsny.nyc.gov' + ':' + 'Junha#2003'  
+						// );
+						/*
+		Bearer Token:
+
+		Type: Access token (OAuth 2.0).
+		Usage: Used for OAuth 2.0 authenticated API requests.
+		Lifetime: Time-limited, may require refresh.
+		Obtained through: OAuth 2.0 flow (e.g., authorization code grant).
+		Example: Authorizing API requests that perform actions on behalf of a user.
+		Integration Key:
+
+		Type: API key (issued for an application or integration).
+		Usage: Used for API requests, often in scenarios where OAuth is not required.
+		Lifetime: Long-lived, does not expire but can be revoked.
+		Obtained through: API provider's developer portal or account settings.
+		Example: Authenticating server-to-server integrations without user interaction.
+
+		The bearer token is included in API requests to authenticate the client. The 
+		token is sent in the Authorization header as:
+			Authorization: Bearer <access_token>
+		The Authorization header in an HTTP request expects a single string value.
+		In the case of a Bearer token, the format of this string must be "Bearer <token>".
+		"Bearer " + bearerToken correctly concatenates the "Bearer " prefix with the actual 
+		token string stored in bearerToken, resulting in a single string like "Bearer abc123".
+
+		The integration key is often sent in the Authorization header to authenticate 
+		API requests. Depending on the API, you might use the key directly or combine 
+		it with a Bearer keyword:
+			Authorization: Bearer <integration_key>
+		In the case of an integration_key, the format of this string must be "Bearer <token>".
+
+				*/
+
+				request.setRequestHeader("Authorization", "Bearer " + bearerToken);
+				request.setRequestHeader("Content-Type", "application/json");
+
+				request.setRequestBody(JSON.stringify(createAgreementFullModel));
+
+				// Execute the request
+				var response = request.execute();
+				var responseBody = response.getBody();
+				var httpStatus = response.getStatusCode();
+
+				if (httpStatus === 201) {
+					var responseJson = JSON.parse(responseBody);
+					var agreementId = responseJson.id;
+					gs.info( "Agreement created successfully. Agreement ID: " + agreementId);
+					return agreementId;
+				} else {
+					gs.error("Failed to create agreement. Status Code: " + httpStatus + ". Response: " + responseBody);
+					return null;
+				}
+			}
+			else {
+				gs.info( "createAgreementFullModel is unexpectedly empty");
+				return null;
+			}
+        } catch (ex) {
+            gs.error("An exception occurred: " + ex.getMessage());
+            return null;
+        }
+    },
+
+
+    type: 'AAIfileUploadUtilityGlobal'
 });
 ]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-08-13 14:52:17</sys_created_on>
         <sys_id>b01651341b449e1076f215ff034bcbdd</sys_id>
-        <sys_mod_count>24</sys_mod_count>
+        <sys_mod_count>26</sys_mod_count>
         <sys_name>AAIfileUploadUtility</sys_name>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
         <sys_update_name>sys_script_include_b01651341b449e1076f215ff034bcbdd</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-08-20 21:02:39</sys_updated_on>
+        <sys_updated_on>2024-09-06 16:42:42</sys_updated_on>
     </sys_script_include>
 </record_update>
