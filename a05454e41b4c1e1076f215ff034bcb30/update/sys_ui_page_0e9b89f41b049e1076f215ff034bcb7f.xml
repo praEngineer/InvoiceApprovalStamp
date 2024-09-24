@@ -4,392 +4,13 @@
         <client_script><![CDATA[        var urlOfTheInvoiceToBeSigned = '';
 		var poSysId = 'somePOnumber';
 
-		// getAllEmailInputs called by _modifyAgreementWithSpecifics
-		// Function to find all INPUT tags with type=email and retrieve their values
-		function getAllEmailInputs() {
-			document.getElementById('result').innerText = 'getAllEmailInputs';
-			// Use querySelectorAll to select all INPUT elements with type=email
-			var emailInputs = document.querySelectorAll('input[type="email"]');
-			
-			// Create an array to store the email values
-			var emailValues = [];
-			var index = -1 ;
-			// Loop through the NodeList returned by querySelectorAll
-			emailInputs.forEach(function(inputElement) {
-				index++
-				// Push the value of the current email input into the array
-				index === 0 && (document.getElementById('preparer').innerText = inputElement.value);
-				index === 1 && (document.getElementById('signer1').innerText = inputElement.value);
-				index === 2 && (document.getElementById('signer2').innerText = inputElement.value);
-				inputElement.value.length > 0 && emailValues.push(inputElement.value);
-			});
-			if(emailValues.length > 2 ) {
-				// Return or log the array of email values
-				return emailValues;
-			}
-			else {
-				alert('This program needs three e-mail addresses.');
-				throw new Error('This program needs three e-mail addresses.');
-			}
-		}
-
-		// createAdobeSignAgreementFullModel called by _modifyAgreementWithSpecifics
-		// once agreement is in-place, use Adobe Sign API to modify anchor tags, etc.
-		function createAdobeSignAgreementFullModel(arrOfEmails, transientDocumentId, poSysId) {
-			var dateCreted = new Date().toISOString(); 
-
-			return {
-			"fileInfos": [
-				{
-				"document": {
-					"createdDate": dateCreted,
-					"id": transientDocumentId,
-					"label": "",
-					"numPages": 10,
-					"mimeType": "application/pdf",
-					"name": ""
-				},
-				"label": "",
-				"libraryDocumentId": "",
-				"notarize": false,
-				"transientDocumentId": transientDocumentId,
-				"urlFileInfo": {
-					"mimeType": "",
-					"name": "",
-					"url": ""
-				}
-				}
-			],
-			"name": poSysId, //  name of the agreement that will be used to identify it, in emails, website and other places,
-			"participantSetsInfo": [
-				{
-				"order": 1,
-				"role": "FORM_FILLER",
-				"electronicSealId": "",
-				"id": "",
-				"label": "", // for custom workflows, n/a here
-				"memberInfos": [
-					{
-					"deliverableEmail": false,
-					"email": arrOfEmails[0],
-					"id": "",
-					"name": "",
-					"phoneDeliveryInfo": {
-						"countryCode": "",
-						"countryIsoCode": "",
-						"phone": ""
-					},
-					"securityOption": {
-						"authenticationMethod": "",
-						"digAuthInfo": {
-						"providerId": "",
-						"providerDesc": "",
-						"providerName": ""
-						},
-						"nameInfo": {
-						"firstName": "",
-						"lastName": ""
-						},
-						"notaryAuthentication": "",
-						"password": "",
-						"phoneInfo": {
-						"countryCode": "",
-						"countryIsoCode": "",
-						"phone": ""
-						}
-					}
-					}
-				],
-				"name": "",
-				"privateMessage": "",
-				"providerParticipationInfo": {
-					"label": "",
-					"participationId": "",
-					"participationSetId": ""
-				},
-				"visiblePages": [
-					""
-				]
-				}
-			],
-			"signatureType": "ESIGN",
-			"state": "DRAFT", //  ['AUTHORING' or 'DRAFT' or 'IN_PROCESS' or 'RESTART']
-			"agreementSettingsInfo": {
-				"canEditAgreementSettings": false,
-				"canEditElectronicSeals": false,
-				"canEditFiles": false,
-				"hipaaEnabled": false
-			},
-			"ccs": [
-				{
-				"email": "",
-				"label": "",
-				"visiblePages": [
-					""
-				]
-				}
-			],
-			"createdDate": "",
-			"createdGroupId": "",
-			"deviceInfo": {
-				"applicationDescription": "",
-				"deviceDescription": "",
-				"deviceTime": ""
-			},
-			"documentRetentionAppliedDate": "date",
-			"documentVisibilityEnabled": false,
-			"emailOption": {
-				"sendOptions": {
-				"completionEmails": "",
-				"inFlightEmails": "",
-				"initEmails": ""
-				}
-			},
-			"expirationTime": "",
-			"externalId": {
-				"id": ""
-			},
-			"firstReminderDelay": 1,
-			"formFieldGenerators": [
-				{
-				"formFieldDescription": {
-					"alignment": "",
-					"backgroundColor": "",
-					"borderColor": "",
-					"borderStyle": "",
-					"borderWidth": 0,
-					"calculated": false,
-					"conditionalAction": {
-					"action": "",
-					"anyOrAll": "",
-					"predicates": [
-						{
-						"fieldLocationIndex": 1,
-						"fieldName": "",
-						"operator": "",
-						"value": ""
-						}
-					]
-					},
-					"contentType": "",
-					"currency": "",
-					"defaultValue": "",
-					"displayFormat": "",
-					"displayFormatType": "",
-					"displayLabel": "",
-					"fontColor": "",
-					"fontName": "",
-					"fontSize": 0,
-					"hiddenOptions": [
-					""
-					],
-					"hyperlink": {
-					"documentLocation": {
-						"height": 0,
-						"left": 0,
-						"pageNumber": 1,
-						"top": 0,
-						"width": 0
-					},
-					"linkType": "",
-					"url": ""
-					},
-					"inputType": "",
-					"masked": false,
-					"maskingText": "",
-					"maxLength": 1,
-					"maxValue": 0,
-					"minLength": 1,
-					"minValue": 0,
-					"origin": "",
-					"radioCheckType": "",
-					"readOnly": false,
-					"required": false,
-					"tooltip": "",
-					"urlOverridable": false,
-					"validation": "",
-					"validationData": "",
-					"validationErrMsg": "",
-					"valueExpression": "",
-					"visible": false,
-					"visibleOptions": [
-					""
-					]
-				},
-				"formFieldNamePrefix": "",
-				"generatorType": "",
-				"participantSetName": "",
-				"anchorTextInfo": {
-					"anchorText": "",
-					"anchoredFormFieldLocation": {
-					"height": 0,
-					"width": 0,
-					"offsetX": 0,
-					"offsetY": 0
-					},
-					"fileInfoLabel": "",
-					"pages": [
-					"int"
-					]
-				},
-				"linked": false
-				}
-			],
-			"formFieldLayerTemplates": [
-				{
-				"document": {
-					"createdDate": "date",
-					"id": "",
-					"label": "",
-					"numPages": 1,
-					"mimeType": "",
-					"name": ""
-				},
-				"label": "",
-				"libraryDocumentId": "",
-				"notarize": false,
-				"transientDocumentId": "",
-				"urlFileInfo": {
-					"mimeType": "",
-					"name": "",
-					"url": ""
-				}
-				}
-			],
-			"groupId": "",
-			"hasFormFieldData": false,
-			"hasSignerIdentityReport": false,
-			"id": "", // The unique identifier of the agreement.If provided in POST, it will simply be ignored
-			"isDocumentRetentionApplied": false,
-			"lastEventDate": "date",
-			"locale": "",
-			"mergeFieldInfo": [
-				{
-				"defaultValue": dateCreted,
-				"fieldName": "PeriodDate"
-				},
-				{
-				"defaultValue": arrOfEmails[1],
-				"fieldName": "Name1"
-				},
-				{
-				"defaultValue": arrOfEmails[2],
-				"fieldName": "Name2"
-				},
-				{
-				"defaultValue": dateCreted,
-				"fieldName": "PeriodDate"
-				},
-				{
-				"defaultValue": dateCreted,
-				"fieldName": "PeriodDate"
-				}												
-			],
-			"message": "",
-			"notaryInfo": {
-				"appointment": "",
-				"notaryEmail": "",
-				"notaryType": "",
-				"note": "",
-				"payment": ""
-			},
-			"parentId": "",
-			"postSignOption": {
-				"redirectDelay": 1,
-				"redirectUrl": ""
-			},
-			"redirectOptions": [
-				{
-				"action": "",
-				"url": "",
-				"delay": 1
-				}
-			],
-			"reminderFrequency": "",
-			"securityOption": {
-				"contentProtectionPreference": {
-				"external": "",
-				"internal": ""
-				},
-				"openPassword": ""
-			},
-			"sendType": "",
-			"senderEmail": "",
-			"senderSigns": "NEVER", // ['FIRST' or 'LAST' or 'NEVER' or 'APPROVE' or 'ARCHIVE' or 'FORWARD' or 'SEQUENTIAL' or 'DELIVER' or 'FILL_SIGN' or 'SEND_ONLY_TO_SELF']:
-			"status": "",
-			"type": "",
-			"vaultingInfo": {
-				"enabled": false
-			},
-			"workflowId": ""
-			}
-		}
-
-		// _modifyAgreementWithSpecifics called by createAgreement
-		function _modifyAgreementWithSpecifics(agreementId){
-			var endpoint = "https://api.na1.adobesign.com/api/rest/v6/agreements/" + agreementId;
-			var integrationKey = '3AAABLblqZhDbzuKsqlwendYru-LDHc8urVIiSF1S5JqU-QDPZ8n3hgda1FrqiyQRzTpYp4QBm7Kvs4zEudTJ7XWpBbFRtQA-'; // agreement
-			// var integrationKey = '3AAABLblqZhAZrPTAOrnJVVSxIwl-QHb4g_YT0nuhqkTCRcuGBXVC8I0LC0haymeht_kVwSDiLcTijIlpykIBdOOBvpk4lXrT'; // transient
-
-
-			// Get the emails from getAllEmailInputs
-			var emails = getAllEmailInputs();  // Assumes this function returns an array of 3 emails
-
-			// Define the recipientSetMemberInfos array using the emails
-			var recipientSetMemberInfos = emails.map(function(email) {
-				return { "email": email };
-			});
-
-			// Define the payload structure for Adobe Sign API
-			var payload = createAdobeSignAgreementFullModel(recipientSetMemberInfos, agreementId, poSysId);
-			return new Promise(function(resolve, reject) { // Wrap the function in a Promise
-				try {
-					// Fetch API call to make a POST request
-					fetch(endpoint, {
-						method: "PUT",
-						headers: {
-							"Authorization": "Bearer " + integrationKey,
-							"Content-Type": "application/json"
-						},
-						body: JSON.stringify(payload)  // Send the payload as JSON
-					})
-					.then(function(response){
-						// if (!response.ok) {
-						// 	// If response is not okay, log the error message
-						// 	var errorText=response.text();
-						// 	document.getElementById('result').innerText="createAdobeSignAgreementFullModel failed to create agreement. Status Code: "+response.status+". Response: "+errorText;
-						// }
-						// resolve(response.json());  // Parse the JSON response
-						if(response.ok){
-							return response.json(); // so it picks up in the next .then()
-						}
-						else {
-							reject("Failed to initialize with Adobe Sign POST " + response.statusText);
-						}
-					})
-					.then(function(responseJson){
-						var agreementId = responseJson.id;  // The ID of the newly created agreement
-						document.getElementById('result').innerText = "createAdobeSignAgreementFullModel Agreement created successfully. Agreement ID: " + agreementId;
-						resolve(agreementId);
-					})
-					.catch(function(error){
-						document.getElementById('result').innerText = "createAdobeSignAgreementFullModel promise rror creating agreement: " + error.message;
-						reject(null);
-					});
-				}
-				catch(anErr){
-					document.getElementById('result').innerText = "createAdobeSignAgreementFullModel try/catch error in createAgreement(): " + anErr.message;
-					reject(null);
-				}}
-			);
-		}
 
 		// createAgreement called by _handleWorkflowClientResponse
 		function createAdobeSignAgreement(transientDocumentId, fileName) {
 			// return an Adbove Sign Agreemment Id 
 
 			var endpoint = "https://api.na1.adobesign.com/api/rest/v6/agreements";
-			var integrationKey = '3AAABLblqZhBCRXsvGgnYCzoElTIidelPJCCPmzc67bRaCIoUa5SyRVrZ0C2OTH2RGPCRwOPSyPzsHLbws4EEzV0K4_H36SpE'; // agreeement
+			var integrationKey = '3AAABLblqZhBY711UyiQNecRtXMX2FR1XVyiNO1bqAS4JmYtGvKYCH2W1en6YNaTYjJQcn_CLkx2H9G6ENUWEYa4oqyWcts4w'; // agreeement
 			// var integrationKey = '3AAABLblqZhCuCMbW1DHowr6wlgRhAgI46GvTKGj_KCBu3WOaHYwaCsEv1wG6bfCtIQENJhBTm6cgVTUnNsD3Reaems4THOK2'; // transient
 
 			// Get the emails from getAllEmailInputs
@@ -402,67 +23,181 @@
 
 			// Define the payload structure for Adobe Sign API
 			var payload = 
+			// {
+			// 	"fileInfos": [{
+			// 		"name": fileName,  // Replace with actual PDF name
+			// 		"transientDocumentId": transientDocumentId  // Adobe Sign Agreement Id
+			// 	}],
+			// 	"name": "Agreement Name PO Number Invoice Number",
+			// 	"participantSetsInfo": [
+			// 		{
+			// 		"name":"Farkas",
+			// 		"order": 1,
+			// 		"role": "SIGNER",
+			// 		"memberInfos": [
+			// 			{"email":"sefarkas1@gmail.com"}
+			// 		]
+			// 		},
+			// 		{
+			// 		"name":"Farkas 2",
+			// 		"order": 2,
+			// 		"role": "SIGNER",
+			// 		"memberInfos": [
+			// 			{"email":"sefarkas@yahoo.com"}
+			// 		]
+			// 		}
+			// 	],
+			// 	"signatureType": "ESIGN",
+			// 	"state": "IN_PROCESS",
+			// 	"formFieldGenerators": [{
+			// 		"formFieldDescription": {
+			// 		"contentType": "SIGNATURE_BLOCK",
+			// 		"inputType": "SIGNATURE"
+			// 		},
+			// 		"anchorTextInfo": {
+			// 		"anchorText": "Signature1",
+			// 		"anchoredFormFieldLocation": {
+			// 			"offsetX": -35,
+			// 			"offsetY": 10
+			// 		}
+			// 		},
+			// 		"formFieldNamePrefix": "DSNY",
+			// 		"participantSetName": "Farkas",
+			// 		"generatorType": "ANCHOR_TEXT"
+			// 	},
+			// 		{
+			// 		"formFieldDescription": {
+			// 			"contentType": "SIGNATURE_BLOCK",
+			// 			"inputType": "SIGNATURE",
+			// 			"displayLabel": "",
+			// 			"fontSize":"10"
+			// 		},
+			// 		"anchorTextInfo": {
+			// 			"anchorText": "Signature2",
+			// 			"anchoredFormFieldLocation": {
+			// 			"offsetX": -35,
+			// 			"offsetY": 10
+			// 			}
+			// 		},
+			// 		"formFieldNamePrefix": "DSNY",
+			// 		"participantSetName": "Farkas 2",
+			// 		"generatorType": "ANCHOR_TEXT"
+			// 		}]
+			// 	};
 			{
 				"fileInfos": [{
-					"name": fileName,  // Replace with actual PDF name
+					"name": fileName,  // Replace with actual PDF name attached to this UI Page
 					"transientDocumentId": transientDocumentId  // Adobe Sign Agreement Id
-				}],
-				"name": "Agreement Name PO Number Invoice Number",
+				}],	
+				"name": "####Invoice#### 20252004942 Invoice", // name of the agreement in Adobe Sign
 				"participantSetsInfo": [
 					{
-					"name":"Farkas",
+					"name": "Signer1",
 					"order": 1,
 					"role": "SIGNER",
 					"memberInfos": [
-						{"email":"sefarkas1@gmail.com"}
+						{
+						"email": recipientSetMemberInfos[0].email
+						}
 					]
 					},
 					{
-					"name":"Farkas 2",
+					"name": "Signer2",
 					"order": 2,
 					"role": "SIGNER",
 					"memberInfos": [
-						{"email":"sefarkas@yahoo.com"}
+						{
+						"email": recipientSetMemberInfos[1].email
+						}
 					]
 					}
 				],
+				"ccs": [
+					{
+					"email": "nycdsdev1@service-now.com"
+					}
+				],
+				"emailOption": {
+					"sendOptions": {
+					"inFlightEmails": "NONE"
+					}
+				},
 				"signatureType": "ESIGN",
 				"state": "IN_PROCESS",
-				"formFieldGenerators": [{
+				"formFieldGenerators": [
+					{
 					"formFieldDescription": {
-					"contentType": "SIGNATURE_BLOCK",
-					"inputType": "SIGNATURE"
+						"inputType": "FILE_CHOOSER"
 					},
 					"anchorTextInfo": {
-					"anchorText": "Signature1",
-					"anchoredFormFieldLocation": {
-						"offsetX": -35,
-						"offsetY": 10
-					}
+						"anchorText": "Attach 1",
+						"anchoredFormFieldLocation": {
+						"width": 50,
+						"height": 10,
+						"offsetX": 0,
+						"offsetY": 0
+						}
 					},
-					"formFieldNamePrefix": "DSNY",
-					"participantSetName": "Farkas",
+					"formFieldNamePrefix": "Backup Documentation",
+					"participantSetName": "Signer1",
 					"generatorType": "ANCHOR_TEXT"
-				},
+					},
+					{
+					"formFieldDescription": {
+						"inputType": "FILE_CHOOSER"
+					},
+					"anchorTextInfo": {
+						"anchorText": "Attach 2",
+						"anchoredFormFieldLocation": {
+						"width": 50,
+						"offsetX": 0,
+						"offsetY": 0
+						}
+					},
+					"formFieldNamePrefix": "Backup Documentation",
+					"participantSetName": "Signer1",
+					"generatorType": "ANCHOR_TEXT"
+					},
 					{
 					"formFieldDescription": {
 						"contentType": "SIGNATURE_BLOCK",
-						"inputType": "SIGNATURE",
-						"displayLabel": "",
-						"fontSize":"10"
+						"inputType": "SIGNATURE"
+					},
+					"anchorTextInfo": {
+						"anchorText": "Signature1",
+						"anchoredFormFieldLocation": {
+						"offsetX": -35,
+						"offsetY": 0
+						}
+					},
+					"formFieldNamePrefix": "DSNY",
+					"participantSetName": "Signer1",
+					"generatorType": "ANCHOR_TEXT"
+					},
+					{
+					"formFieldDescription": {
+						"contentType": "SIGNATURE_BLOCK",
+						"inputType": "SIGNATURE"
 					},
 					"anchorTextInfo": {
 						"anchorText": "Signature2",
 						"anchoredFormFieldLocation": {
 						"offsetX": -35,
-						"offsetY": 10
+						"offsetY": 0
 						}
 					},
 					"formFieldNamePrefix": "DSNY",
-					"participantSetName": "Farkas 2",
+					"participantSetName": "Signer2",
 					"generatorType": "ANCHOR_TEXT"
-					}]
-				};
+					}
+				],
+				"postSignOption": {
+					"redirectDelay": 3,
+					"redirectUrl": "https://nycdsdev1.service-now.com/x_dosny_dsinvoicea_ApproveAttachedInvoice.do"
+				}
+			}
+
+
 			// var payload = createAdobeSignAgreementFullModel(arrOfEmails, transientDocumentId, poSysId);
 			document.getElementById('payload').innerText = "createAdobeSignAgreement payload:: " + JSON.stringify(payload);
 					
@@ -510,7 +245,7 @@
 				try {
 					var endpoint = "https://api.na1.echosign.com/api/rest/v6/transientDocuments";
 					// var integrationKey = '3AAABLblqZhDbzuKsqlwendYru-LDHc8urVIiSF1S5JqU-QDPZ8n3hgda1FrqiyQRzTpYp4QBm7Kvs4zEudTJ7XWpBbFRtQA-'; // agreement
-					var integrationKey = '3AAABLblqZhCwwX6PpbIl9Qvflo2B-huFhafi_TT9weLlxZgmuXxqU_rEHoMjgiE7zsByJO1M67iRMG38ATXZvVwvnT1ZNOXz'; // transient
+					var integrationKey = '3AAABLblqZhBY711UyiQNecRtXMX2FR1XVyiNO1bqAS4JmYtGvKYCH2W1en6YNaTYjJQcn_CLkx2H9G6ENUWEYa4oqyWcts4w'; // transient
 // transient: {"code":"INVALID_ACCESS_TOKEN","message":"Access token provided is invalid or has expired"}
 
 // upload to Adobe Sign via transient documents API expects a byte stream in the POST payload
@@ -1054,42 +789,6 @@
 
 		}
 
-		function startWorkflow() {
-			try {
-				var fileInput = document.getElementById('pdfFile');
-				var file = fileInput.files[0];
-				if (!file) {
-					alert('Please select a PDF file to download.');
-					return;
-				}
-				else {
-					alert('You selected this file for download: ' + file.name);
-				}				
-				var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
-				var recordSysId = '0e9b89f41b049e1076f215ff034bcb7f'; // Set this to the sys_id of the current record
-
-				var arrOfEmails = getAllEmailInputs();
-
-				var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
-				ga.addParam('sysparm_name', 'createAdobeSignAgreementObtainAgreementId');
-				ga.addParam('tableName', tableName);
-				ga.addParam('recordSysId', recordSysId);
-				ga.addParam('arrOfEmails', arrOfEmails);
-				ga.addParam('pdfNameWithPDFextension', file.name);
-				document.getElementById('result').innerText = 'startWorkflow ga parms loaded for ' + file.name;
-				ga.getXMLAnswer(_handleWorkflowResponse);				
-
-
-				// ga.addParam('attachmentSysId', recordSysId);	
-				// ga.addParam('arrOfEmails',arrOfEmails);
-				// document.getElementById('result').innerText = 'startWorkflow ga parms loaded for ' + file.name;
-				// ga.getXMLAnswer(_handleWorkflowResponse);
-			}
-			catch (error){
-				document.getElementById('result').innerText = 'hummph in startWorkflow ...' +  error.message;
-
-			}
-		}
 
 		function _handleWorkflowResponse(response){
 			if(response !== undefined){
@@ -1168,6 +867,43 @@
 				document.getElementById('result').innerText = 'hummph in startWorkflow handler  ... no download response' ;
 			}			
 		}
+		function startWorkflow() {
+			try {
+				var fileInput = document.getElementById('pdfFile');
+				var file = fileInput.files[0];
+				if (!file) {
+					alert('Please select a PDF file to download.');
+					return;
+				}
+				else {
+					alert('You selected this file for download: ' + file.name);
+				}				
+				var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
+				var recordSysId = '0e9b89f41b049e1076f215ff034bcb7f'; // Set this to the sys_id of the current record
+
+				var arrOfEmails = getAllEmailInputs();
+
+				var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+				ga.addParam('sysparm_name', 'createAdobeSignAgreementObtainAgreementId');
+				ga.addParam('tableName', tableName);
+				ga.addParam('recordSysId', recordSysId);
+				ga.addParam('arrOfEmails', arrOfEmails);
+				ga.addParam('pdfNameWithPDFextension', file.name);
+				document.getElementById('result').innerText = 'startWorkflow ga parms loaded for ' + file.name;
+				ga.getXMLAnswer(_handleWorkflowResponse);				
+
+
+				// ga.addParam('attachmentSysId', recordSysId);	
+				// ga.addParam('arrOfEmails',arrOfEmails);
+				// document.getElementById('result').innerText = 'startWorkflow ga parms loaded for ' + file.name;
+				// ga.getXMLAnswer(_handleWorkflowResponse);
+			}
+			catch (error){
+				document.getElementById('result').innerText = 'hummph in startWorkflow ...' +  error.message;
+
+			}
+		}
+
 
 		function _handleReadAttIntoString(response) {
 			if(response !== undefined){
@@ -1292,7 +1028,386 @@
 			});
 		}
 
+		// createAdobeSignAgreementFullModel called by _modifyAgreementWithSpecifics
+		// once agreement is in-place, use Adobe Sign API to modify anchor tags, etc.
+		function createAdobeSignAgreementFullModel(arrOfEmails, transientDocumentId, poSysId) {
+			var dateCreted = new Date().toISOString(); 
 
+			return {
+			"fileInfos": [
+				{
+				"document": {
+					"createdDate": dateCreted,
+					"id": transientDocumentId,
+					"label": "",
+					"numPages": 10,
+					"mimeType": "application/pdf",
+					"name": ""
+				},
+				"label": "",
+				"libraryDocumentId": "",
+				"notarize": false,
+				"transientDocumentId": transientDocumentId,
+				"urlFileInfo": {
+					"mimeType": "",
+					"name": "",
+					"url": ""
+				}
+				}
+			],
+			"name": poSysId, //  name of the agreement that will be used to identify it, in emails, website and other places,
+			"participantSetsInfo": [
+				{
+				"order": 1,
+				"role": "FORM_FILLER",
+				"electronicSealId": "",
+				"id": "",
+				"label": "", // for custom workflows, n/a here
+				"memberInfos": [
+					{
+					"deliverableEmail": false,
+					"email": arrOfEmails[0],
+					"id": "",
+					"name": "",
+					"phoneDeliveryInfo": {
+						"countryCode": "",
+						"countryIsoCode": "",
+						"phone": ""
+					},
+					"securityOption": {
+						"authenticationMethod": "",
+						"digAuthInfo": {
+						"providerId": "",
+						"providerDesc": "",
+						"providerName": ""
+						},
+						"nameInfo": {
+						"firstName": "",
+						"lastName": ""
+						},
+						"notaryAuthentication": "",
+						"password": "",
+						"phoneInfo": {
+						"countryCode": "",
+						"countryIsoCode": "",
+						"phone": ""
+						}
+					}
+					}
+				],
+				"name": "",
+				"privateMessage": "",
+				"providerParticipationInfo": {
+					"label": "",
+					"participationId": "",
+					"participationSetId": ""
+				},
+				"visiblePages": [
+					""
+				]
+				}
+			],
+			"signatureType": "ESIGN",
+			"state": "DRAFT", //  ['AUTHORING' or 'DRAFT' or 'IN_PROCESS' or 'RESTART']
+			"agreementSettingsInfo": {
+				"canEditAgreementSettings": false,
+				"canEditElectronicSeals": false,
+				"canEditFiles": false,
+				"hipaaEnabled": false
+			},
+			"ccs": [
+				{
+				"email": "",
+				"label": "",
+				"visiblePages": [
+					""
+				]
+				}
+			],
+			"createdDate": "",
+			"createdGroupId": "",
+			"deviceInfo": {
+				"applicationDescription": "",
+				"deviceDescription": "",
+				"deviceTime": ""
+			},
+			"documentRetentionAppliedDate": "date",
+			"documentVisibilityEnabled": false,
+			"emailOption": {
+				"sendOptions": {
+				"completionEmails": "",
+				"inFlightEmails": "",
+				"initEmails": ""
+				}
+			},
+			"expirationTime": "",
+			"externalId": {
+				"id": ""
+			},
+			"firstReminderDelay": 1,
+			"formFieldGenerators": [
+				{
+				"formFieldDescription": {
+					"alignment": "",
+					"backgroundColor": "",
+					"borderColor": "",
+					"borderStyle": "",
+					"borderWidth": 0,
+					"calculated": false,
+					"conditionalAction": {
+					"action": "",
+					"anyOrAll": "",
+					"predicates": [
+						{
+						"fieldLocationIndex": 1,
+						"fieldName": "",
+						"operator": "",
+						"value": ""
+						}
+					]
+					},
+					"contentType": "",
+					"currency": "",
+					"defaultValue": "",
+					"displayFormat": "",
+					"displayFormatType": "",
+					"displayLabel": "",
+					"fontColor": "",
+					"fontName": "",
+					"fontSize": 0,
+					"hiddenOptions": [
+					""
+					],
+					"hyperlink": {
+					"documentLocation": {
+						"height": 0,
+						"left": 0,
+						"pageNumber": 1,
+						"top": 0,
+						"width": 0
+					},
+					"linkType": "",
+					"url": ""
+					},
+					"inputType": "",
+					"masked": false,
+					"maskingText": "",
+					"maxLength": 1,
+					"maxValue": 0,
+					"minLength": 1,
+					"minValue": 0,
+					"origin": "",
+					"radioCheckType": "",
+					"readOnly": false,
+					"required": false,
+					"tooltip": "",
+					"urlOverridable": false,
+					"validation": "",
+					"validationData": "",
+					"validationErrMsg": "",
+					"valueExpression": "",
+					"visible": false,
+					"visibleOptions": [
+					""
+					]
+				},
+				"formFieldNamePrefix": "",
+				"generatorType": "",
+				"participantSetName": "",
+				"anchorTextInfo": {
+					"anchorText": "",
+					"anchoredFormFieldLocation": {
+					"height": 0,
+					"width": 0,
+					"offsetX": 0,
+					"offsetY": 0
+					},
+					"fileInfoLabel": "",
+					"pages": [
+					"int"
+					]
+				},
+				"linked": false
+				}
+			],
+			"formFieldLayerTemplates": [
+				{
+				"document": {
+					"createdDate": "date",
+					"id": "",
+					"label": "",
+					"numPages": 1,
+					"mimeType": "",
+					"name": ""
+				},
+				"label": "",
+				"libraryDocumentId": "",
+				"notarize": false,
+				"transientDocumentId": "",
+				"urlFileInfo": {
+					"mimeType": "",
+					"name": "",
+					"url": ""
+				}
+				}
+			],
+			"groupId": "",
+			"hasFormFieldData": false,
+			"hasSignerIdentityReport": false,
+			"id": "", // The unique identifier of the agreement.If provided in POST, it will simply be ignored
+			"isDocumentRetentionApplied": false,
+			"lastEventDate": "date",
+			"locale": "",
+			"mergeFieldInfo": [
+				{
+				"defaultValue": dateCreted,
+				"fieldName": "PeriodDate"
+				},
+				{
+				"defaultValue": arrOfEmails[1],
+				"fieldName": "Name1"
+				},
+				{
+				"defaultValue": arrOfEmails[2],
+				"fieldName": "Name2"
+				},
+				{
+				"defaultValue": dateCreted,
+				"fieldName": "PeriodDate"
+				},
+				{
+				"defaultValue": dateCreted,
+				"fieldName": "PeriodDate"
+				}												
+			],
+			"message": "",
+			"notaryInfo": {
+				"appointment": "",
+				"notaryEmail": "",
+				"notaryType": "",
+				"note": "",
+				"payment": ""
+			},
+			"parentId": "",
+			"postSignOption": {
+				"redirectDelay": 1,
+				"redirectUrl": ""
+			},
+			"redirectOptions": [
+				{
+				"action": "",
+				"url": "",
+				"delay": 1
+				}
+			],
+			"reminderFrequency": "",
+			"securityOption": {
+				"contentProtectionPreference": {
+				"external": "",
+				"internal": ""
+				},
+				"openPassword": ""
+			},
+			"sendType": "",
+			"senderEmail": "",
+			"senderSigns": "NEVER", // ['FIRST' or 'LAST' or 'NEVER' or 'APPROVE' or 'ARCHIVE' or 'FORWARD' or 'SEQUENTIAL' or 'DELIVER' or 'FILL_SIGN' or 'SEND_ONLY_TO_SELF']:
+			"status": "",
+			"type": "",
+			"vaultingInfo": {
+				"enabled": false
+			},
+			"workflowId": ""
+			}
+		}
+
+
+		// getAllEmailInputs called by _modifyAgreementWithSpecifics
+		// Function to find all INPUT tags with type=email and retrieve their values
+		function getAllEmailInputs() {
+			document.getElementById('result').innerText = 'getAllEmailInputs';
+			// Use querySelectorAll to select all INPUT elements with type=email
+			var emailInputs = document.querySelectorAll('input[type="email"]');
+			
+			// Create an array to store the email values
+			var emailValues = [];
+			var index = -1 ;
+			// Loop through the NodeList returned by querySelectorAll
+			emailInputs.forEach(function(inputElement) {
+				index++
+				// Push the value of the current email input into the array
+				index === 0 && (document.getElementById('preparer').innerText = inputElement.value);
+				index === 1 && (document.getElementById('signer1').innerText = inputElement.value);
+				index === 2 && (document.getElementById('signer2').innerText = inputElement.value);
+				inputElement.value.length > 0 && emailValues.push(inputElement.value);
+			});
+			if(emailValues.length > 2 ) {
+				// Return or log the array of email values
+				return emailValues;
+			}
+			else {
+				alert('This program needs three e-mail addresses.');
+				throw new Error('This program needs three e-mail addresses.');
+			}
+		}
+
+		// _modifyAgreementWithSpecifics called by createAgreement
+		function _modifyAgreementWithSpecifics(agreementId){
+			var endpoint = "https://api.na1.adobesign.com/api/rest/v6/agreements/" + agreementId;
+			var integrationKey = '3AAABLblqZhBY711UyiQNecRtXMX2FR1XVyiNO1bqAS4JmYtGvKYCH2W1en6YNaTYjJQcn_CLkx2H9G6ENUWEYa4oqyWcts4w'; // agreement
+			// var integrationKey = '3AAABLblqZhAZrPTAOrnJVVSxIwl-QHb4g_YT0nuhqkTCRcuGBXVC8I0LC0haymeht_kVwSDiLcTijIlpykIBdOOBvpk4lXrT'; // transient
+
+
+			// Get the emails from getAllEmailInputs
+			var emails = getAllEmailInputs();  // Assumes this function returns an array of 3 emails
+
+			// Define the recipientSetMemberInfos array using the emails
+			var recipientSetMemberInfos = emails.map(function(email) {
+				return { "email": email };
+			});
+
+			// Define the payload structure for Adobe Sign API
+			var payload = createAdobeSignAgreementFullModel(recipientSetMemberInfos, agreementId, poSysId);
+			return new Promise(function(resolve, reject) { // Wrap the function in a Promise
+				try {
+					// Fetch API call to make a POST request
+					fetch(endpoint, {
+						method: "PUT",
+						headers: {
+							"Authorization": "Bearer " + integrationKey,
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify(payload)  // Send the payload as JSON
+					})
+					.then(function(response){
+						// if (!response.ok) {
+						// 	// If response is not okay, log the error message
+						// 	var errorText=response.text();
+						// 	document.getElementById('result').innerText="createAdobeSignAgreementFullModel failed to create agreement. Status Code: "+response.status+". Response: "+errorText;
+						// }
+						// resolve(response.json());  // Parse the JSON response
+						if(response.ok){
+							return response.json(); // so it picks up in the next .then()
+						}
+						else {
+							reject("Failed to initialize with Adobe Sign POST " + response.statusText);
+						}
+					})
+					.then(function(responseJson){
+						var agreementId = responseJson.id;  // The ID of the newly created agreement
+						document.getElementById('result').innerText = "createAdobeSignAgreementFullModel Agreement created successfully. Agreement ID: " + agreementId;
+						resolve(agreementId);
+					})
+					.catch(function(error){
+						document.getElementById('result').innerText = "createAdobeSignAgreementFullModel promise rror creating agreement: " + error.message;
+						reject(null);
+					});
+				}
+				catch(anErr){
+					document.getElementById('result').innerText = "createAdobeSignAgreementFullModel try/catch error in createAgreement(): " + anErr.message;
+					reject(null);
+				}}
+			);
+		}
 ]]></client_script>
         <description>upload a PDF to the attachment table (sys_attachment) in ServiceNow from a UI Page using client-side JavaScript, you can use the ServiceNow GlideAjax API in combination with a server-side Script Include to handle the file upload and return the necessary information.</description>
         <direct>false</direct>
@@ -1355,13 +1470,13 @@
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-08-13 14:20:36</sys_created_on>
         <sys_id>0e9b89f41b049e1076f215ff034bcb7f</sys_id>
-        <sys_mod_count>259</sys_mod_count>
+        <sys_mod_count>264</sys_mod_count>
         <sys_name>ApproveAttachedInvoice</sys_name>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
         <sys_update_name>sys_ui_page_0e9b89f41b049e1076f215ff034bcb7f</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-09-24 14:12:24</sys_updated_on>
+        <sys_updated_on>2024-09-24 17:53:36</sys_updated_on>
     </sys_ui_page>
 </record_update>
