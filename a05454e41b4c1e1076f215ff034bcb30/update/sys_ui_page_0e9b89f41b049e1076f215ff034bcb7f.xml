@@ -389,8 +389,8 @@
 			// return an Adbove Sign Agreemment Id 
 
 			var endpoint = "https://api.na1.adobesign.com/api/rest/v6/agreements";
-			var integrationKey = '3AAABLblqZhDbzuKsqlwendYru-LDHc8urVIiSF1S5JqU-QDPZ8n3hgda1FrqiyQRzTpYp4QBm7Kvs4zEudTJ7XWpBbFRtQA-'; // agreeement
-			// var integrationKey = '3AAABLblqZhAZrPTAOrnJVVSxIwl-QHb4g_YT0nuhqkTCRcuGBXVC8I0LC0haymeht_kVwSDiLcTijIlpykIBdOOBvpk4lXrT'; // transient
+			var integrationKey = '3AAABLblqZhBCRXsvGgnYCzoElTIidelPJCCPmzc67bRaCIoUa5SyRVrZ0C2OTH2RGPCRwOPSyPzsHLbws4EEzV0K4_H36SpE'; // agreeement
+			// var integrationKey = '3AAABLblqZhCuCMbW1DHowr6wlgRhAgI46GvTKGj_KCBu3WOaHYwaCsEv1wG6bfCtIQENJhBTm6cgVTUnNsD3Reaems4THOK2'; // transient
 
 			// Get the emails from getAllEmailInputs
 			var emails = getAllEmailInputs();  // Assumes this function returns an array of 3 emails
@@ -401,24 +401,71 @@
 			});
 
 			// Define the payload structure for Adobe Sign API
-			var payload = {
+			var payload = 
+			{
 				"fileInfos": [{
 					"name": fileName,  // Replace with actual PDF name
 					"transientDocumentId": transientDocumentId  // Adobe Sign Agreement Id
 				}],
-				"name": "Agreement for PDF",  // Agreement name
-				"recipientSetInfos": [{
-					"recipientSetMemberInfos": recipientSetMemberInfos,  // Use the dynamically generated email array
-					"recipientSetRole": "SIGNER",
-					"securityOption": {
-						"authenticationMethod": "NONE"  // No authentication required
+				"name": "Agreement Name PO Number Invoice Number",
+				"participantSetsInfo": [
+					{
+					"name":"Farkas",
+					"order": 1,
+					"role": "SIGNER",
+					"memberInfos": [
+						{"email":"sefarkas1@gmail.com"}
+					]
+					},
+					{
+					"name":"Farkas 2",
+					"order": 2,
+					"role": "SIGNER",
+					"memberInfos": [
+						{"email":"sefarkas@yahoo.com"}
+					]
 					}
-				}],
+				],
 				"signatureType": "ESIGN",
-				"state": "DRAFT"
-			};
+				"state": "IN_PROCESS",
+				"formFieldGenerators": [{
+					"formFieldDescription": {
+					"contentType": "SIGNATURE_BLOCK",
+					"inputType": "SIGNATURE"
+					},
+					"anchorTextInfo": {
+					"anchorText": "Signature1",
+					"anchoredFormFieldLocation": {
+						"offsetX": -35,
+						"offsetY": 10
+					}
+					},
+					"formFieldNamePrefix": "DSNY",
+					"participantSetName": "Farkas",
+					"generatorType": "ANCHOR_TEXT"
+				},
+					{
+					"formFieldDescription": {
+						"contentType": "SIGNATURE_BLOCK",
+						"inputType": "SIGNATURE",
+						"displayLabel": "",
+						"fontSize":"10"
+					},
+					"anchorTextInfo": {
+						"anchorText": "Signature2",
+						"anchoredFormFieldLocation": {
+						"offsetX": -35,
+						"offsetY": 10
+						}
+					},
+					"formFieldNamePrefix": "DSNY",
+					"participantSetName": "Farkas 2",
+					"generatorType": "ANCHOR_TEXT"
+					}]
+				};
 			// var payload = createAdobeSignAgreementFullModel(arrOfEmails, transientDocumentId, poSysId);
-
+			document.getElementById('payload').innerText = "createAdobeSignAgreement payload:: " + JSON.stringify(payload);
+					
 			return new Promise(function(resolve, reject) { // Wrap the function in a Promise
 				try{
 					// Fetch API call to make a POST request
@@ -447,7 +494,7 @@
 						}
 					})
 					.catch(function(err){
-						reject("Error uploading transient document: " + err);
+						reject("Error uploading transient document: " + err + " payload: " + JSON.stringify(payload));
 					});
 				}
 				catch(anErr){
@@ -463,12 +510,26 @@
 				try {
 					var endpoint = "https://api.na1.echosign.com/api/rest/v6/transientDocuments";
 					// var integrationKey = '3AAABLblqZhDbzuKsqlwendYru-LDHc8urVIiSF1S5JqU-QDPZ8n3hgda1FrqiyQRzTpYp4QBm7Kvs4zEudTJ7XWpBbFRtQA-'; // agreement
-					var integrationKey = '3AAABLblqZhAZrPTAOrnJVVSxIwl-QHb4g_YT0nuhqkTCRcuGBXVC8I0LC0haymeht_kVwSDiLcTijIlpykIBdOOBvpk4lXrT'; // transient
+					var integrationKey = '3AAABLblqZhCwwX6PpbIl9Qvflo2B-huFhafi_TT9weLlxZgmuXxqU_rEHoMjgiE7zsByJO1M67iRMG38ATXZvVwvnT1ZNOXz'; // transient
 // transient: {"code":"INVALID_ACCESS_TOKEN","message":"Access token provided is invalid or has expired"}
+
+// upload to Adobe Sign via transient documents API expects a byte stream in the POST payload
+					// Assuming base64EncodedPdf is a Base64 string
+					var byteCharacters = atob(base64EncodedPdf);
+					var byteNumbers = new Array(byteCharacters.length);
+					for (var i = 0; i < byteCharacters.length; i++) {
+						byteNumbers[i] = byteCharacters.charCodeAt(i);
+					}
+					var byteArray = new Uint8Array(byteNumbers);
+
+					// Now create a Blob from the byteArray
+					var blob = new Blob([byteArray], { type: 'application/pdf' });
+
 					var formData = new FormData();
 					formData.append("File-Name", fileName);
 					formData.append("Mime-Type", "application/pdf");
-					formData.append("File", new Blob([base64EncodedPdf], { type: 'application/pdf' }));  // Convert the Base64 string to a Blob
+					// formData.append("File", new Blob([base64EncodedPdf], { type: 'application/pdf' }));  // Convert the Base64 string to a Blob
+					formData.append("File", blob);
 
 					// Fetch API call to upload the document as a transient document
 					fetch(endpoint, {
@@ -521,20 +582,20 @@
 					// Upload the Base64 PDF as a transient document to get a transientDocumentId
 					uploadTransientDocument(base64EncodedData, fileName)
 					.then(function(transientDocumentId) {
-						document.getElementById('message').innerText = 'Transient Document ID: ' + transientDocumentId;
+						document.getElementById('transientId').innerText = 'Transient Document ID: ' + transientDocumentId;
 						
 						// Use the transientDocumentId to create an agreement
 						return createAdobeSignAgreement(transientDocumentId, fileName); // returns agreement id
 					})
-					.then(function(agreementId) {
-						document.getElementById('message').innerText = 'Basic Agreement Created. Agreement ID: ' + agreementId;
+					// .then(function(agreementId) {
+					// 	document.getElementById('message').innerText = 'Basic Agreement Created. Agreement ID: ' + agreementId;
 						
-						// Modify the agreement with specifics
-						return _modifyAgreementWithSpecifics(agreementId); // returns the same agreement id, however,
-						// the _modifyAgreementWithSpecifics has altered the PDF anchor placeholders
-					})
-					.then(function(modifiedAgreement) {
-						document.getElementById('message').innerText = 'Agreement ' + modifiedAgreement + ' modified successfully. Ready to sign.';
+					// 	// Modify the agreement with specifics
+					// 	return _modifyAgreementWithSpecifics(agreementId); // returns the same agreement id, however,
+					// 	// the _modifyAgreementWithSpecifics has altered the PDF anchor placeholders
+					// })
+					.then(function(finishedAgreement) {
+						document.getElementById('message').innerText = 'Agreement ' + finishedAgreement + ' finished successfully. Ready to sign.';
 					})
 					.catch(function(err) {
 						document.getElementById('result').innerText = 'Error in _handleWorkflowClientResponse promise: ' + err;
@@ -595,6 +656,75 @@
 		}
 
 // -----------------------------------------
+
+		function _handleDownloadResponse(response) {
+			if(response !== undefined){
+				var dataFromScriptInclude = JSON.parse(response); 
+				document.getElementById('message').innerText = 'response: ' + dataFromScriptInclude.slice(0, 20);
+				var dataAsStringFromScriptInclude = dataFromScriptInclude.toString();
+
+				if (dataAsStringFromScriptInclude) {
+					try {
+						var stringArray = '';
+						var binaryArray = [];
+
+						if (dataAsStringFromScriptInclude.includes(',')) {
+							
+							// Step 1: Split the CSV string into an array of strings
+							if (dataAsStringFromScriptInclude && typeof dataAsStringFromScriptInclude === 'string') {
+								stringArray = dataAsStringFromScriptInclude.split(',');
+							} else {
+								var str = dataAsStringFromScriptInclude.toString();
+								document.getElementById('message').innerText = 'str is ' + str.slice(0, 20);
+								stringArray = str.split(',');
+							}
+
+							// Step 2: Convert each string to an integer
+							var intArray = stringArray.map(function(num) {
+								return parseInt(num, 10);
+							});
+							
+							// Step 3: Create a Uint8Array from the integer array
+							binaryArray = new Uint8Array(intArray);
+						} else {
+							document.getElementById('message').innerText = 'response has no commas';
+
+							// Add padding to the base64 string if necessary
+							while (dataAsStringFromScriptInclude.length % 4 !== 0) {
+								dataAsStringFromScriptInclude += "=";
+							}
+
+							// Decode base64 to binary data
+							var decodedData = atob(dataAsStringFromScriptInclude);
+							var len = decodedData.length;
+							binaryArray = new Uint8Array(len);
+							for (var i = 0; i < len; i++) {
+								binaryArray[i] = decodedData.charCodeAt(i);
+							}
+						}
+
+						// Step 4: Create a Blob from the binary array
+						var blob = new Blob([binaryArray], { type: 'application/pdf' });
+
+						// Create a URL for the Blob and open it in a new window
+						var urlOfTheAttachedPDF = window.URL.createObjectURL(blob);
+						window.open(urlOfTheAttachedPDF);
+
+		
+					}
+					catch(error){
+						document.getElementById('result').innerText = 'hummph in _routeForSignatureResponse ...' +  error.message;
+					}
+			
+				} else {
+					document.getElementById('result').innerText = 'hummph in _routeForSignatureResponse  ... no base64String' ;
+				}				
+			}
+			else {
+				document.getElementById('result').innerText = 'hummph in download handler  ... no download response' ;
+			}
+		}
+		
 		function downloadPDF() {
 			try{
 				var fileInput = document.getElementById('pdfFile');
@@ -617,7 +747,8 @@
 				document.getElementById('result').innerText = 'download ga parms loaded for ' + file.name;
 				// Use an anonymous function to wrap the call and pass file.name
 				ga.getXMLAnswer(function(response) {
-					_handleWorkflowClientResponse(response, file.name); // Pass file.name to the callback
+					//_handleWorkflowClientResponse(response, file.name); // Pass file.name to the callback
+					_handleDownloadResponse(response);
 				});
 			}
 			catch(error){
@@ -683,16 +814,6 @@
 			
 		}
 
-		function _handleDownloadResponse(response) {
-			if(response !== undefined){
-				var dataFromScriptInclude = JSON.parse(response); 
-				document.getElementById('message').innerText = 'response: ' + dataFromScriptInclude.slice(0,20);
-				var dataAsStringFromScriptInclude = dataFromScriptInclude.toString();
-			}
-			else {
-				document.getElementById('result').innerText = 'hummph in download handler  ... no download response' ;
-			}
-		}
 
 		function routeForSignature() {
 			document.getElementById('message').innerText = 'routeForSignature';
@@ -1194,6 +1315,10 @@
 	<br/>
     <div id="result"></div>
 	<br/>
+	<div id="transientId"></div>
+	<br />
+	<div id="payload"></div>
+	<br />	
     <div id="message"></div>
 	<br />
     <label for="preparer">Signer 1 Email:</label>
@@ -1208,9 +1333,9 @@
 
     <script>
         // Set default email values
-        document.getElementById('preparer').value = 'sfarkas@dsny.nyc.gov';
+        document.getElementById('preparer').value = 'sefarkas@yahoo.com';
         document.getElementById('signer1').value = 'sefarkas1@gmail.com';
-        document.getElementById('signer2').value = 'sefarkas@yahoo.com';
+        document.getElementById('signer2').value = 'sefarkas1@aol.com';
  
         // Optionally, you can also set the text input fields if needed
         // document.getElementById('email1').value = 'sfarkas@dsny.nyc.gov';
@@ -1230,13 +1355,13 @@
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-08-13 14:20:36</sys_created_on>
         <sys_id>0e9b89f41b049e1076f215ff034bcb7f</sys_id>
-        <sys_mod_count>237</sys_mod_count>
+        <sys_mod_count>259</sys_mod_count>
         <sys_name>ApproveAttachedInvoice</sys_name>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
         <sys_update_name>sys_ui_page_0e9b89f41b049e1076f215ff034bcb7f</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-09-06 16:49:15</sys_updated_on>
+        <sys_updated_on>2024-09-24 14:12:24</sys_updated_on>
     </sys_ui_page>
 </record_update>
