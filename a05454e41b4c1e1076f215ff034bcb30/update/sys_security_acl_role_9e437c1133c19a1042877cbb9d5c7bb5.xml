@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_security_acl_role">
+    <sys_security_acl_role action="INSERT_OR_UPDATE">
+        <sys_class_name>sys_security_acl_role</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-10-03 18:38:05</sys_created_on>
+        <sys_id>9e437c1133c19a1042877cbb9d5c7bb5</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_dosny_dsinvoicea_ExecutivePlus.x_dosny_bit_procur.bit_micro_purchase_invoice_user</sys_name>
+        <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
+        <sys_security_acl display_value="x_dosny_dsinvoicea_ExecutivePlus">1643b81133c19a1042877cbb9d5c7bdb</sys_security_acl>
+        <sys_update_name>sys_security_acl_role_9e437c1133c19a1042877cbb9d5c7bb5</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-10-03 18:38:05</sys_updated_on>
+        <sys_user_role display_value="x_dosny_bit_procur.bit_micro_purchase_invoice_user" name="x_dosny_bit_procur.bit_micro_purchase_invoice_user">2417dbae1bc49d5010c26391ec4bcbc6</sys_user_role>
+    </sys_security_acl_role>
+</record_update>

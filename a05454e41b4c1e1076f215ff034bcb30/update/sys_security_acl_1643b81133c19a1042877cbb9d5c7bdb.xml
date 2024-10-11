@@ -2,28 +2,28 @@
     <sys_security_acl action="INSERT_OR_UPDATE">
         <active>true</active>
         <admin_overrides>true</admin_overrides>
-        <advanced>true</advanced>
+        <advanced>false</advanced>
         <applies_to/>
         <condition/>
         <decision_type>allow</decision_type>
-        <description>Allow execute for records in sys_script_include, for users with role x_dosny_bit_procur.bit_procurement_invoice_user.</description>
+        <description/>
         <local_or_existing>Local</local_or_existing>
-        <name>sys_script_include</name>
-        <operation display_value="execute">execute</operation>
+        <name>x_dosny_dsinvoicea_ExecutivePlus</name>
+        <operation display_value="read">read</operation>
         <script/>
         <security_attribute/>
         <sys_class_name>sys_security_acl</sys_class_name>
         <sys_created_by>sfarkas</sys_created_by>
-        <sys_created_on>2024-08-13 15:59:35</sys_created_on>
-        <sys_id>9ea361f01b849e1076f215ff034bcb71</sys_id>
-        <sys_mod_count>1</sys_mod_count>
-        <sys_name>sys_script_include</sys_name>
+        <sys_created_on>2024-10-03 18:38:05</sys_created_on>
+        <sys_id>1643b81133c19a1042877cbb9d5c7bdb</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_dosny_dsinvoicea_ExecutivePlus</sys_name>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
-        <sys_update_name>sys_security_acl_9ea361f01b849e1076f215ff034bcb71</sys_update_name>
+        <sys_update_name>sys_security_acl_1643b81133c19a1042877cbb9d5c7bdb</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-08-13 16:11:21</sys_updated_on>
-        <type display_value="record">record</type>
+        <sys_updated_on>2024-10-03 18:38:05</sys_updated_on>
+        <type display_value="ui_page">ui_page</type>
     </sys_security_acl>
 </record_update>

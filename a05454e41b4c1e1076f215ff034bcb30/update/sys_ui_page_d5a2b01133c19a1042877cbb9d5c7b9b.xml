@@ -1,8 +1,269 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_page">
     <sys_ui_page action="INSERT_OR_UPDATE">
         <category>cms</category>
-        <client_script><![CDATA[        var urlOfTheInvoiceToBeSigned = '';transientDocumentId
+        <client_script><![CDATA[        var urlOfTheInvoiceToBeSigned = '';
 		var poSysId = 'somePOnumber';
+
+
+		function _handleUploadResponse(response)  { // Step #5
+			document.getElementById('message').innerText = 'Setp #5 summarize results' ;
+			try{
+				if(response){
+					var result = JSON.parse(response);
+					if(result){
+						if(result.recordSysId !== '0') {
+							document.getElementById('result').innerText = 
+								'Attachment uploaded to table: ' + result.tableName +
+								'\nRecord sys_id: ' + result.recordSysId +
+								'\nAttachment sys_id: ' + result.attachmentSysId;
+						} else {
+							document.getElementById('result').innerText = 'script include problem (_handleUploadResponse): ' + result.tableName;
+						}
+					} else {
+						document.getElementById('result').innerText = 'hummph (_handleUploadResponse) ... no result' ;
+					}
+				}
+				else {
+					document.getElementById('result').innerText = 'hummph (_handleUploadResponse) ... no response' ;
+				}
+			}
+			catch(err){
+				document.getElementById('result').innerText = '_handleUploadResponse catch: ' + err.message ;
+			}
+
+
+		}
+
+        function getAttachmentBase64Content(attachmentSysId, callback) {
+            var attachmentUrl = '/sys_attachment.do?sys_id=' + attachmentSysId;
+            // 8f1eb3db338d521042877cbb9d5c7bec
+            return fetch(attachmentUrl)
+                .then(function(response) {
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        throw new Error('Network response was not ok.');
+                    }
+                })
+                .then(function(blob) {
+                    var reader = new FileReader();
+                    reader.onloadend = function() {
+                        var base64data = reader.result.split(',')[1];
+                        callback(base64data);
+                    };
+                    return reader.readAsDataURL(blob);
+                })
+                .catch(function(error) {
+                    throw new Error('Error fetching attachment:', error);
+                });
+        }
+
+		function uploadPDFToServiceNow(base64Content) {
+			try{
+				// Ensure base64Content has no data URI prefix
+				if (base64Content.includes(',')) {
+					base64Content = base64Content.split(',')[1];
+				}
+
+				var ga = new GlideAjax('YourScriptIncludeName'); // Replace with your Script Include name
+				ga.addParam('sysparm_name', 'uploadPDFglobal');
+				ga.addParam('tableName', 'sys_ui_page'); // The table name for UI Pages
+				ga.addParam('recordSysId', 'YOUR_UI_PAGE_SYS_ID'); // Replace with your UI Page sys_id
+				ga.addParam('fileName', 'document.pdf'); // The desired file name
+				ga.addParam('filetype', 'application/pdf'); // The MIME type
+				ga.addParam('base64Content', base64Content);
+
+				ga.getXMLAnswer(function(response) {
+					var result = JSON.parse(response);
+					if (result.attachmentSysId && result.attachmentSysId !== '0') {
+						// Success
+						_handleUploadResponse(result);
+					} else {
+						// Error
+						throw new Error('Error uploading attachment: ' + result.tableName);
+					}
+				});
+			}
+			catch(errUpLoad){
+				throw new Error('uploadPDFToServiceNow caught: ' + errUpLoad.message);
+			}
+
+		}
+
+
+		async function _handleStampedInvoice(response, fileName, mimeType){ // Step #4
+			document.getElementById('message').innerText =  'Step #4 upload stamped PDF ';
+			try {
+
+				var base64Content = response.File;
+				var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
+				var recordSysId = 'd5a2b01133c19a1042877cbb9d5c7b9b'; 
+				// This is the sys_id of the UI Page record in sys_ui_page
+
+
+				// Find the position of the last dot in the filename
+				var dotIndex = fileName.lastIndexOf('.');
+
+				// Extract the base name and the extension
+				var baseName = fileName.substring(0, dotIndex);
+				var extension = fileName.substring(dotIndex);
+
+				// Create the new filename by inserting "_stamped"
+				var newFileName = baseName + "_stamped" + extension;
+
+				// Send the raw data (Base64) to the server
+				var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+				if(!ga){
+					throw new Error('cannot make new GlideAjax(global.AAIfileUploadUtilityGlobal)')
+				}
+				ga.addParam('sysparm_name', 'uploadPDFglobal');
+
+				ga.addParam('tableName', tableName);
+				ga.addParam('recordSysId', recordSysId);
+				ga.addParam('fileName', newFileName);
+				ga.addParam('filetype', mimeType); 
+				ga.addParam('base64Content', base64Content);
+				// ga.getXMLAnswer(function(nextresponse) {
+				// 	_handleUploadResponse(nextresponse); // Pass file.name to the callback
+				// });
+
+				// Wrap ga.getXMLAnswer in a Promise and await it
+				const nextresponse = await new Promise((resolve, reject) => {
+					ga.getXMLAnswer(function (answer) {
+						if (answer) {
+							resolve(answer);
+						} else {
+							reject(new Error('No response received from uploadPDFglobal'));
+						}
+					});
+				});
+
+				// Handle the response after awaiting
+				_handleUploadResponse(nextresponse); // Pass nextresponse to the callback function
+
+			}
+			catch(err){
+				document.getElementById('result').innerText = '_handleStampedInvoice caught: ' + err.message;
+			}
+		}
+
+		async function _passByteStreamToEdmund(response, fileName, mimeType) { // Step #3
+			try{
+				document.getElementById('message').innerText =  'Step #3 send unstamped PDF to restAPI' + fileName;
+				var endpoint = 'https://10.216.3.193:8443/restAPI';
+				var base64EncodedPdf = response;
+				document.getElementById('payload').innerText = 'encoded content of ' + fileName + ' is ' + 			base64EncodedPdf.slice(0,20);
+				var payload = {
+
+					"Period":"4/1/24-4/3-/24",
+
+					"File": base64EncodedPdf,
+
+					"Filename":fileName
+
+				};
+				const headers = {
+					'Access-Control-Allow-Origin': '*',
+					'Accept': 'application/json',
+					'Content-Type': 'application/json;charset=UTF-8',
+					// 'Authorization': `Basic ${credentials}`,
+					};
+
+				// Fetch API call to make a POST request
+				let fetchResponse = await fetch(endpoint, {
+					method: "POST",
+					headers: headers,
+					body: JSON.stringify(payload)  // Send the payload as JSON
+				});
+
+				if (fetchResponse.ok) {
+					let responseJson = await fetchResponse.json();
+
+					if (typeof responseJson === 'undefined') {
+						throw new Error("Failed to receive JSON from Edmund");
+					} else {
+						// Call the next function with the received data
+						await _handleStampedInvoice(responseJson, fileName, mimeType);
+					}
+				} else {
+					throw new Error("Failed to connect to Edmund: " + fetchResponse.statusText);
+				}
+			}
+			catch(err1){
+				document.getElementById('message').innerText = '_passByteStreamToEdmund caused: ' + err1.message;
+			}
+
+
+		}
+
+		function _scriptIncludeResponse(response, fileName, mimeType){ // Step #2
+			document.getElementById('message').innerText =  'Step #2 read first listed into Base64 ';
+			
+			var attachments = JSON.parse(response); // Parse the response to get the attachments list
+			if(Array.isArray(attachments) !== true){
+					document.getElementById('message').innerText = 'No attachments found in response: ' + response;
+					return;
+			}
+			if (attachments.length > 0) {
+				// select the first attachment
+				var selectedAttachment = attachments[0]; // Change this to select a different attachment if needed
+				
+				fileName = selectedAttachment.file_name;  // Retrieve the file name
+				mimeType = selectedAttachment.content_type;  // Retrieve the MIME type
+				document.getElementById('filename').innerText = fileName;
+				document.getElementById('filetype').innerText = mimeType;
+
+			} else {
+				document.getElementById('result').innerText = 'attachments.length is zero.';
+				return;
+			}
+
+			// Set this to the table where the attachment should be uploaded
+			var tableName = 'sys_ui_page'; 
+
+			// Set this to the sys_id of the current UI Page record  
+			var recordSysId = 'd5a2b01133c19a1042877cbb9d5c7b9b'; 
+			
+			// test attachment (10Oct2024) sys_id of row in 
+			// sys_attachement table: 8f1eb3db338d521042877cbb9d5c7bec
+
+			var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+			ga.addParam('sysparm_name', 'readAttIntoBase64');
+			ga.addParam('tableName', tableName);
+			ga.addParam('fileName', fileName);				
+			ga.addParam('recordSysId', recordSysId);	
+			document.getElementById('result').innerText = 'download ga parms loaded for ' + fileName;
+
+			// Use an anonymous function to wrap the call and pass file.name
+			ga.getXMLAnswer(function(response) {
+				_passByteStreamToEdmund(response, fileName, mimeType); // Pass file.name to the callback
+			});			
+		}
+
+		function stampAnUnstampedInvoice() { // Step #1
+			document.getElementById('message').innerText =  'Step #1 get a list of Attachments ';
+			try {
+				// getAttachmentBase64Content
+				var fileName = 'selectedAttachment.file_name';  // initialize the file name
+				var mimeType = 'selectedAttachment.content_type';  // initialize the MIME type
+
+				// Call the REST API to get the list of attachments for the given record
+				document.getElementById('message').innerText = 'try to find file name and MIME type of current attachment';
+				var ga1 = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+				ga1.addParam('sysparm_name', 'getAttachments');
+				ga1.addParam('sys_id', 'd5a2b01133c19a1042877cbb9d5c7b9b'); 
+				
+				// Use an anonymous function to wrap the call and pass file.name
+				ga1.getXMLAnswer(function(response) {
+					_scriptIncludeResponse(response, fileName, mimeType); // Pass file.name to the callback
+				});
+
+			}
+			catch(err){
+				document.getElementById('result').innerText = 'hummph in stampAnUnstampedInvoice ...' +  error.message;
+
+			}
+		}
 
 
 		// createAgreement called by _handleWorkflowClientResponse
@@ -23,67 +284,6 @@
 
 			// Define the payload structure for Adobe Sign API
 			var payload = 
-			// {
-			// 	"fileInfos": [{
-			// 		"name": fileName,  // Replace with actual PDF name
-			// 		"transientDocumentId": transientDocumentId  // Adobe Sign Agreement Id
-			// 	}],
-			// 	"name": "Agreement Name PO Number Invoice Number",
-			// 	"participantSetsInfo": [
-			// 		{
-			// 		"name":"Farkas",
-			// 		"order": 1,
-			// 		"role": "SIGNER",
-			// 		"memberInfos": [
-			// 			{"email":"sefarkas1@gmail.com"}
-			// 		]
-			// 		},
-			// 		{
-			// 		"name":"Farkas 2",
-			// 		"order": 2,
-			// 		"role": "SIGNER",
-			// 		"memberInfos": [
-			// 			{"email":"sefarkas@yahoo.com"}
-			// 		]
-			// 		}
-			// 	],
-			// 	"signatureType": "ESIGN",
-			// 	"state": "IN_PROCESS",
-			// 	"formFieldGenerators": [{
-			// 		"formFieldDescription": {
-			// 		"contentType": "SIGNATURE_BLOCK",
-			// 		"inputType": "SIGNATURE"
-			// 		},
-			// 		"anchorTextInfo": {
-			// 		"anchorText": "Signature1",
-			// 		"anchoredFormFieldLocation": {
-			// 			"offsetX": -35,
-			// 			"offsetY": 10
-			// 		}
-			// 		},
-			// 		"formFieldNamePrefix": "DSNY",
-			// 		"participantSetName": "Farkas",
-			// 		"generatorType": "ANCHOR_TEXT"
-			// 	},
-			// 		{
-			// 		"formFieldDescription": {
-			// 			"contentType": "SIGNATURE_BLOCK",
-			// 			"inputType": "SIGNATURE",
-			// 			"displayLabel": "",
-			// 			"fontSize":"10"
-			// 		},
-			// 		"anchorTextInfo": {
-			// 			"anchorText": "Signature2",
-			// 			"anchoredFormFieldLocation": {
-			// 			"offsetX": -35,
-			// 			"offsetY": 10
-			// 			}
-			// 		},
-			// 		"formFieldNamePrefix": "DSNY",
-			// 		"participantSetName": "Farkas 2",
-			// 		"generatorType": "ANCHOR_TEXT"
-			// 		}]
-			// 	};
 			{
 				"fileInfos": [{
 					"name": fileName,  // Replace with actual PDF name attached to this UI Page
@@ -201,7 +401,8 @@
 			// var payload = createAdobeSignAgreementFullModel(arrOfEmails, transientDocumentId, poSysId);
 			document.getElementById('payload').innerText = "createAdobeSignAgreement payload:: " + JSON.stringify(payload);
 					
-			return new Promise(function(resolve, reject) { // Wrap the function in a Promise
+			return new Promise(function(resolve, reject) { 
+				// Wrap the function in a Promise
 				try{
 					// Fetch API call to make a POST request
 					fetch(endpoint, {
@@ -246,11 +447,11 @@
 					var endpoint = "https://api.na1.echosign.com/api/rest/v6/transientDocuments";
 					// var integrationKey = '3AAABLblqZhDbzuKsqlwendYru-LDHc8urVIiSF1S5JqU-QDPZ8n3hgda1FrqiyQRzTpYp4QBm7Kvs4zEudTJ7XWpBbFRtQA-'; // agreement
 					var integrationKey = '3AAABLblqZhBY711UyiQNecRtXMX2FR1XVyiNO1bqAS4JmYtGvKYCH2W1en6YNaTYjJQcn_CLkx2H9G6ENUWEYa4oqyWcts4w'; // transient
-					// transient: {"code":"INVALID_ACCESS_TOKEN","message":"Access 
-					// token provided is invalid or has expired"}
+					// transient: {"code":"INVALID_ACCESS_TOKEN","message":"Access token 
+					// provided is invalid or has expired"}
 
-					// upload to Adobe Sign via transient documents API 
-					// expects a byte stream in the POST payload
+					// upload to Adobe Sign via transient documents API expects a 
+					// byte stream in the POST payload
 					// Assuming base64EncodedPdf is a Base64 string
 					var byteCharacters = atob(base64EncodedPdf);
 					var byteNumbers = new Array(byteCharacters.length);
@@ -309,7 +510,8 @@
 			// use the transient document as the basis of an Adobe Sign Agreement
 			// update the anchor tags of the transient document using Adobe Sign API(s)
 			try {
-				if(response !== undefined && !!response){ // not undefined and not null
+				if(response !== undefined && !!response){ 
+					// not undefined and not null
 					var base64EncodedData = response; // returns a base64 encoded string
 
 					// Upload the Base64 PDF as a transient document to get a transientDocumentId.
@@ -324,13 +526,6 @@
 						// Use the transientDocumentId to create an agreement
 						return createAdobeSignAgreement(transientDocumentId, fileName); // returns agreement id
 					})
-					// .then(function(agreementId) {
-					// 	document.getElementById('message').innerText = 'Basic Agreement Created. Agreement ID: ' + agreementId;
-						
-					// 	// Modify the agreement with specifics
-					// 	return _modifyAgreementWithSpecifics(agreementId); // returns the same agreement id, however,
-					// 	// the _modifyAgreementWithSpecifics has altered the PDF anchor placeholders
-					// })
 					.then(function(finishedAgreement) {
 						document.getElementById('message').innerText = 'Agreement ' + finishedAgreement + ' finished successfully. Ready to sign.';
 					})
@@ -474,7 +669,7 @@
 					alert('You selected this file for download: ' + file.name);
 				}				
 				var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
-				var recordSysId = '0e9b89f41b049e1076f215ff034bcb7f'; // Set this to the sys_id of the current record
+				var recordSysId = 'd5a2b01133c19a1042877cbb9d5c7b9b'; // Set this to the sys_id of the current record
 
 				var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
 				ga.addParam('sysparm_name', 'readAttIntoString');
@@ -735,7 +930,7 @@
 					//  event.target.result as if you opened the PDF with notepad
 					var base64Content = event.target.result.split(',')[1]; // Get Base64 content without the prefix
 					var tableName = 'sys_ui_page'; // Set this to the table where the attachment should be uploaded
-					var recordSysId = '0e9b89f41b049e1076f215ff034bcb7f'; // Set this to the sys_id of the record
+					var recordSysId = 'd5a2b01133c19a1042877cbb9d5c7b9b'; // Set this to the sys_id of the UI Page record
 
 					// Send the raw data (Base64) to the server
 					var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
@@ -769,29 +964,6 @@
 
         }
 
-		function _handleUploadResponse(response)  {
-			if(response){
-				var result = JSON.parse(response);
-				if(result){
-					if(result.recordSysId !== '0') {
-						document.getElementById('result').innerText = 
-							'Attachment uploaded to table: ' + result.tableName +
-							'\nRecord sys_id: ' + result.recordSysId +
-							'\nAttachment sys_id: ' + result.attachmentSysId;
-					} else {
-						document.getElementById('result').innerText = 'script include problem: ' + result.tableName;
-					}
-				} else {
-					document.getElementById('result').innerText = 'hummph ... no result' ;
-				}
-			}
-			else {
-				document.getElementById('result').innerText = 'hummph ... no response' ;
-			}
-
-		}
-
-
 		function _handleWorkflowResponse(response){
 			if(response !== undefined){
 				var dataFromScriptInclude = response; //JSON.parse(response);
@@ -799,7 +971,7 @@
 					document.getElementById('message').innerText = 'response: ' + dataFromScriptInclude?.slice(0,20);
 				}
 				else {
-					document.getElementById('message').innerText = 'no response from Adobe Sign ';
+					document.getElementById('message').innerText = 'no response from Adobe Sign '
 				}
 				return;
 				// var dataAsStringFromScriptInclude = dataFromScriptInclude.toString();
@@ -869,6 +1041,7 @@
 				document.getElementById('result').innerText = 'hummph in startWorkflow handler  ... no download response' ;
 			}			
 		}
+
 		function startWorkflow() {
 			try {
 				var fileInput = document.getElementById('pdfFile');
@@ -937,11 +1110,11 @@
 				ga.addParam('tableName', tableName);
 				ga.addParam('fileName', file.name);				
 				ga.addParam('recordSysId', recordSysId);	
-				document.getElementById('result').innerText = 'download ga parms loaded for ' + file.name;
+				document.getElementById('result').innerText = 'getAttachedPdfAsBinary ga parms loaded for ' + file.name;
 				ga.getXMLAnswer(_handleReadAttIntoString);
 			}
 			catch(error){
-				document.getElementById('result').innerText = 'hummph in download ...' +  error.message;
+				document.getElementById('result').innerText = 'hummph in getAttachedPdfAsBinary ...' +  error.message;
 			}			
 		}
 
@@ -1411,9 +1584,9 @@
 			);
 		}
 ]]></client_script>
-        <description>upload a PDF to the attachment table (sys_attachment) in ServiceNow from a UI Page using client-side JavaScript, you can use the ServiceNow GlideAjax API in combination with a server-side Script Include to handle the file upload and return the necessary information.</description>
+        <description>upload a PDF to the attachment table (sys_attachment) in ServiceNow from a UI Page using client-side JavaScript, you can use the ServiceNow GlideAjax API in combination with a server-side Script Include to handle the file upload and return the necessary information.  New feature to run API made by Edmund</description>
         <direct>false</direct>
-        <endpoint>x_dosny_dsinvoicea_ApproveAttachedInvoice.do</endpoint>
+        <endpoint>x_dosny_dsinvoicea_ExecutivePlus.do</endpoint>
         <html><![CDATA[<html>
 <head>
     <title>Upload PDF</title>
@@ -1462,33 +1635,36 @@
 
 	<button onclick="startWorkFlowClient()">Route attached to Adobe Sign</button>
 
+	<div>
+		<button onClick="stampAnUnstampedInvoice()">Send PDF to restAPI</button>
+	</div>
 	
 </body>
 </html>
 ]]></html>
-        <name>ApproveAttachedInvoice</name>
+        <name>ExecutivePlus</name>
         <processing_script/>
         <sys_class_name>sys_ui_page</sys_class_name>
         <sys_created_by>sfarkas</sys_created_by>
-        <sys_created_on>2024-08-13 14:20:36</sys_created_on>
-        <sys_id>0e9b89f41b049e1076f215ff034bcb7f</sys_id>
-        <sys_mod_count>271</sys_mod_count>
-        <sys_name>ApproveAttachedInvoice</sys_name>
+        <sys_created_on>2024-10-03 18:38:05</sys_created_on>
+        <sys_id>d5a2b01133c19a1042877cbb9d5c7b9b</sys_id>
+        <sys_mod_count>45</sys_mod_count>
+        <sys_name>ExecutivePlus</sys_name>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
-        <sys_update_name>sys_ui_page_0e9b89f41b049e1076f215ff034bcb7f</sys_update_name>
+        <sys_update_name>sys_ui_page_d5a2b01133c19a1042877cbb9d5c7b9b</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-10-10 19:09:00</sys_updated_on>
+        <sys_updated_on>2024-10-10 18:04:43</sys_updated_on>
     </sys_ui_page>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
-        <id>0e9b89f41b049e1076f215ff034bcb7f</id>
+        <id>d5a2b01133c19a1042877cbb9d5c7b9b</id>
         <sys_created_by>sfarkas</sys_created_by>
-        <sys_created_on>2024-10-04 16:48:53</sys_created_on>
-        <sys_id>68e3a5ad3309da1042877cbb9d5c7b04</sys_id>
+        <sys_created_on>2024-10-03 18:38:05</sys_created_on>
+        <sys_id>5e437c1133c19a1042877cbb9d5c7ba9</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-10-04 16:48:53</sys_updated_on>
+        <sys_updated_on>2024-10-03 18:38:05</sys_updated_on>
         <table>sys_ui_page</table>
         <use_es_latest>true</use_es_latest>
     </sys_es_latest_script>

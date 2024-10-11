@@ -6,7 +6,9 @@
         <caller_access/>
         <client_callable>true</client_callable>
         <description>handles the file upload to the sys_attachment table. This Script Include will take the file content and other necessary information and return the sys_id of the newly created attachment record.</description>
+        <mobile_callable>false</mobile_callable>
         <name>AAIfileUploadUtility</name>
+        <sandbox_callable>true</sandbox_callable>
         <script><![CDATA[var AAIfileUploadUtility = Class.create();
 AAIfileUploadUtility.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
     // initialize: function() {},
@@ -680,7 +682,26 @@ AAIfileUploadUtilityGlobal.prototype = Object.extendsObject(global.AbstractAjaxP
 	},
 // -----------------------
 
+	getAttachments: function() {
+		var recordSysId = this.getParameter('sys_id'); // Get sys_id from client-side request
+		var attachmentGr = new GlideRecord('sys_attachment');
+		attachmentGr.addQuery('table_sys_id', recordSysId);
+		attachmentGr.query();
+		
+		var attachments = [];
+		while (attachmentGr.next()) {
+		attachments.push({
+			sys_id: attachmentGr.sys_id.toString(),
+			file_name: attachmentGr.file_name.toString(),
+			content_type: attachmentGr.content_type.toString(),
+			file_size: attachmentGr.size_bytes.toString()
+		});
+		}
+		
+		return JSON.stringify(attachments);
+  },
 
+// -----------------------
 
 	createAdobeSignAgreementFullModel: function() {
 		var transientDocumentId = getParameter('transientDocumentId');
@@ -1288,13 +1309,24 @@ AAIfileUploadUtilityGlobal.prototype = Object.extendsObject(global.AbstractAjaxP
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-08-13 14:52:17</sys_created_on>
         <sys_id>b01651341b449e1076f215ff034bcbdd</sys_id>
-        <sys_mod_count>26</sys_mod_count>
+        <sys_mod_count>27</sys_mod_count>
         <sys_name>AAIfileUploadUtility</sys_name>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
         <sys_update_name>sys_script_include_b01651341b449e1076f215ff034bcbdd</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-09-06 16:42:42</sys_updated_on>
+        <sys_updated_on>2024-10-03 20:10:00</sys_updated_on>
     </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>b01651341b449e1076f215ff034bcbdd</id>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-10-03 20:10:00</sys_created_on>
+        <sys_id>3c580d5133059a1042877cbb9d5c7bff</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-10-03 20:10:00</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
 </record_update>
