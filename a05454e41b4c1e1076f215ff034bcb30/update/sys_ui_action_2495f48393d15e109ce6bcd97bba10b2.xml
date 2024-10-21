@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_ui_action">
+    <sys_ui_action action="INSERT_OR_UPDATE">
+        <action_name>Start Signature Workflow</action_name>
+        <active>true</active>
+        <client>true</client>
+        <client_script_v2><![CDATA[function onClick(g_form) {
+
+}]]></client_script_v2>
+        <comments/>
+        <condition>current.canWrite() </condition>
+        <form_action>true</form_action>
+        <form_button>true</form_button>
+        <form_button_v2>false</form_button_v2>
+        <form_context_menu>false</form_context_menu>
+        <form_link>false</form_link>
+        <form_menu_button_v2>false</form_menu_button_v2>
+        <form_style/>
+        <format_for_configurable_workspace>false</format_for_configurable_workspace>
+        <hint/>
+        <isolate_script>true</isolate_script>
+        <list_action>false</list_action>
+        <list_banner_button>false</list_banner_button>
+        <list_button>false</list_button>
+        <list_choice>false</list_choice>
+        <list_context_menu>false</list_context_menu>
+        <list_link>false</list_link>
+        <list_save_with_form_button>false</list_save_with_form_button>
+        <list_style/>
+        <messages/>
+        <name>BIT Procurement Invoice Approval Stamp</name>
+        <onclick>reactPOapprovalStamp()</onclick>
+        <order>100</order>
+        <script><![CDATA[function _passByteStreamToEdmund(response, fileName, mimeType) { // Step #3
+    try {
+        g_form.addInfoMessage('Step #3 send unstamped PDF to restAPI: ' + ((typeof fileName === 'undefined') ? 'no fileName provided to _passByteStreamToEdmund' : fileName));
+        var endpoint = 'https://10.216.3.193:8443/restAPI';
+        var base64EncodedPdf = response;
+
+        var signerFirstSysId = g_form.getValue('signer_first');
+        var signerSecondSysId = g_form.getValue('signer_second');
+
+        var signerFirstEmail = '';
+        var signerSecondEmail = '';
+
+        var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+        ga.addParam('sysparm_name', 'getEmailBySysId');
+        ga.addParam('sys_id', signerFirstSysId);  // Getting email of the first signer
+
+        ga.getXMLAnswer(function(firstResponse) {
+            signerFirstEmail = firstResponse;
+
+            var ga2 = new GlideAjax('global.AAIfileUploadUtilityGlobal'); // New GlideAjax for second signer
+            ga2.addParam('sysparm_name', 'getEmailBySysId');
+            ga2.addParam('sys_id', signerSecondSysId);  // Getting email of the second signer
+
+            ga2.getXMLAnswer(function(secondResponse) {
+                signerSecondEmail = secondResponse;
+
+                var invoicePeriodStart = g_form.getValue('invoice_period_start');
+                var invoicePeriodEnd = g_form.getValue('invoice_period_end');
+                var period = '';
+
+                // Check if invoicePeriodEnd is empty or null
+                if (!invoicePeriodEnd || invoicePeriodStart === invoicePeriodEnd) {
+                    period = invoicePeriodStart;
+                } else {
+                    period = invoicePeriodStart + ' - ' + invoicePeriodEnd;
+                }
+
+                var poNumberDisplayValue = g_form.getDisplayBox('purchase_order').value;
+                var sysID = g_form.getUniqueValue();  // Sys_id of the current record on the form
+
+                // Validate all attributes have non-trivial values
+                if (
+                    typeof period !== 'undefined' &&
+                    typeof signerFirstEmail !== 'undefined' &&
+                    typeof signerSecondEmail !== 'undefined' &&
+                    typeof fileName !== 'undefined' &&
+                    typeof poNumberDisplayValue !== 'undefined' &&
+                    typeof sysID !== 'undefined'
+                ) {
+                    var payload = {
+                        "PeriodDate": period,
+                        "File": base64EncodedPdf,
+                        "Signer1": signerFirstEmail,
+                        "Signer2": signerSecondEmail,
+                        "Filename": fileName,
+                        "PoNumber": poNumberDisplayValue,
+                        "SnRecordNumber": sysID,
+                        "Pages": '1,2,4,6,10,20',
+                    };
+
+                    const headers = {
+                        'Access-Control-Allow-Origin': '*',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json;charset=UTF-8',
+                    };
+
+                    // Fetch API call to make a POST request using promises
+                    fetch(endpoint, {
+                        method: "POST",
+                        headers: headers,
+                        body: JSON.stringify(payload)  // Send the payload as JSON
+                    })
+                    .then(function(response) {
+                        if (!response.ok) {
+                            throw new Error('_passByteStreamToEdmund fetch failed: ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        g_form.addInfoMessage('Data sent successfully: ' + data);
+                    })
+                    .catch(function(err) {
+                        g_form.addInfoMessage('_passByteStreamToEdmund fetch error: ' + err.message);
+                    });
+
+                } else {
+                    throw new Error('_passByteStreamToEdmund payload item(s) is(are) missing a value');
+                }
+            });
+        });
+
+    } catch (err1) {
+        g_form.addInfoMessage('_passByteStreamToEdmund prep caused: ' + err1.message);
+    }
+}
+
+
+function _scriptIncludeResponse(response, fileName, mimeType){ // Step #2
+	// Use Array.find() to get the first attachment with 'Invoice' in the file name and without '_stamped'
+	try {
+		var attachments = response;
+
+		// If response is a string, parse it into an array of objects
+		if (typeof attachments === 'string') {
+			try {
+				attachments = JSON.parse(attachments);
+			} catch (error) {
+				throw new Error('_scriptIncludeResponse failed to parse attachment response as JSON');
+			}
+		}
+
+		if(!attachments){
+			throw new Error('no attachment array passed into _scriptIncludeResponse');
+		}
+		if(!Array.isArray(attachments)){
+			attachments = [attachments];
+		}
+		var selectedAttachment = attachments.find(attachment => 
+			attachment.file_name.includes('####Invoice') && !attachment.file_name.includes('_stamped')
+		);
+		
+		if (!selectedAttachment) {
+			throw new Error('attachments.length is zero.');
+		} else {
+			// If an attachment matching the criteria is found
+			fileName = selectedAttachment.file_name;  // Retrieve the file name
+			mimeType = selectedAttachment.content_type;  // Retrieve the MIME type
+		}
+
+		var recordSysId = g_form.getUniqueValue();  // Get the current record's sys_id
+
+		var tableName = 'x_dosny_bit_procur_bit_procurement_invoices'; // could not determine programmatically with common user ID
+
+		var ga = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+
+		ga.addParam('sysparm_name', 'readAttIntoBase64');
+		ga.addParam('tableName', tableName);
+		ga.addParam('fileName', fileName);				
+		ga.addParam('recordSysId', recordSysId);	
+
+		// Use an anonymous function to wrap the call and pass file.name
+		ga.getXMLAnswer(function(response) {
+			_passByteStreamToEdmund(response, fileName, mimeType); // Pass file.name to the callback
+		});
+
+	}
+	catch(errOuter){
+		g_form.addInfoMessage('_scriptIncludeResponse encountered: ' + err1.message);
+	}
+}
+
+function reactPOapprovalStamp() {
+	try {
+		var sysID = g_form.getUniqueValue(); 
+		// Now I have the sys_id of the current record on the form.
+
+		var ga1 = new GlideAjax('global.AAIfileUploadUtilityGlobal');
+		ga1.addParam('sysparm_name', 'getAttachments');
+		ga1.addParam('sys_id', sysID); 
+
+		var fileName = 'selectedAttachment.file_name';  // initialize the file name
+		var mimeType = 'selectedAttachment.content_type';  // initialize the MIME type
+
+		// Use an anonymous function to wrap the call and pass file.name
+		ga1.getXMLAnswer(function(response) {
+			_scriptIncludeResponse(response, fileName, mimeType); // Pass file.name to the callback
+		});
+
+	}
+catch(error){
+		alert('UI Action for reactPOapprovalStamp problem: '+ error.message);
+	}
+}]]></script>
+        <show_insert>true</show_insert>
+        <show_multiple_update>false</show_multiple_update>
+        <show_query>false</show_query>
+        <show_update>true</show_update>
+        <sys_class_name>sys_ui_action</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-10-21 15:36:43</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>2495f48393d15e109ce6bcd97bba10b2</sys_id>
+        <sys_mod_count>31</sys_mod_count>
+        <sys_name>BIT Procurement Invoice Approval Stamp</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
+        <sys_update_name>sys_ui_action_2495f48393d15e109ce6bcd97bba10b2</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-10-21 21:35:19</sys_updated_on>
+        <table>x_dosny_bit_procur_bit_procurement_invoices</table>
+        <ui11_compatible>true</ui11_compatible>
+        <ui16_compatible>false</ui16_compatible>
+    </sys_ui_action>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>2495f48393d15e109ce6bcd97bba10b2</id>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-10-21 15:36:43</sys_created_on>
+        <sys_id>3066b08393d15e109ce6bcd97bba10a3</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-10-21 15:36:43</sys_updated_on>
+        <table>sys_ui_action</table>
+        <use_es_latest>false</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
