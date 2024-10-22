@@ -159,7 +159,13 @@
 
 					"File": base64EncodedPdf,
 
-					"Filename":fileName
+					"Filename":fileName,
+
+					"Signer1": 'sefarkas@yahoo.com',
+					"Signer2": 'sfarkas@dsny.nyc.gov',
+					"PoNumber": 'poNumberDisplayValue',
+					"SnRecordNumber": 'sysID',
+					"Pages": '1,2,4,6,10,20',
 
 				};
 				const headers = {
@@ -1648,14 +1654,14 @@
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-10-03 18:38:05</sys_created_on>
         <sys_id>d5a2b01133c19a1042877cbb9d5c7b9b</sys_id>
-        <sys_mod_count>45</sys_mod_count>
+        <sys_mod_count>48</sys_mod_count>
         <sys_name>ExecutivePlus</sys_name>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
         <sys_update_name>sys_ui_page_d5a2b01133c19a1042877cbb9d5c7b9b</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-10-10 18:04:43</sys_updated_on>
+        <sys_updated_on>2024-10-22 14:16:58</sys_updated_on>
     </sys_ui_page>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>d5a2b01133c19a1042877cbb9d5c7b9b</id>

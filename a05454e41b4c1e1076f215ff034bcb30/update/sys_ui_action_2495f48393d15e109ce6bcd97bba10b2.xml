@@ -80,7 +80,7 @@
                     typeof sysID !== 'undefined'
                 ) {
                     var payload = {
-                        "PeriodDate": period,
+                        "Period": period,
                         "File": base64EncodedPdf,
                         "Signer1": signerFirstEmail,
                         "Signer2": signerSecondEmail,
@@ -213,7 +213,7 @@ catch(error){
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>2495f48393d15e109ce6bcd97bba10b2</sys_id>
-        <sys_mod_count>31</sys_mod_count>
+        <sys_mod_count>32</sys_mod_count>
         <sys_name>BIT Procurement Invoice Approval Stamp</sys_name>
         <sys_overrides/>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
@@ -221,7 +221,7 @@ catch(error){
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
         <sys_update_name>sys_ui_action_2495f48393d15e109ce6bcd97bba10b2</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-10-21 21:35:19</sys_updated_on>
+        <sys_updated_on>2024-10-22 14:18:11</sys_updated_on>
         <table>x_dosny_bit_procur_bit_procurement_invoices</table>
         <ui11_compatible>true</ui11_compatible>
         <ui16_compatible>false</ui16_compatible>
