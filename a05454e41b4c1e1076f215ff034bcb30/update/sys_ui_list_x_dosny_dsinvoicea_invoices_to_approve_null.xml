@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_list parent="" relationship="" sys_domain="global" table="x_dosny_dsinvoicea_invoices_to_approve" version="2" view="">
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>number</element>
+            <list_id display_value="x_dosny_dsinvoicea_invoices_to_approve" element="NULL" name="x_dosny_dsinvoicea_invoices_to_approve" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">f192b5b63356921042877cbb9d5c7bdf</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>0</position>
+            <sum>false</sum>
+            <sys_created_by>sfarkas</sys_created_by>
+            <sys_created_on>2024-12-09 18:24:02</sys_created_on>
+            <sys_id>7992b5b63356921042877cbb9d5c7be0</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>sfarkas</sys_updated_by>
+            <sys_updated_on>2024-12-09 18:24:02</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>name_01</element>
+            <list_id display_value="x_dosny_dsinvoicea_invoices_to_approve" element="NULL" name="x_dosny_dsinvoicea_invoices_to_approve" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">f192b5b63356921042877cbb9d5c7bdf</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>1</position>
+            <sum>false</sum>
+            <sys_created_by>sfarkas</sys_created_by>
+            <sys_created_on>2024-12-09 18:24:02</sys_created_on>
+            <sys_id>7192b5b63356921042877cbb9d5c7be1</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>sfarkas</sys_updated_by>
+            <sys_updated_on>2024-12-09 18:24:02</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>name_02</element>
+            <list_id display_value="x_dosny_dsinvoicea_invoices_to_approve" element="NULL" name="x_dosny_dsinvoicea_invoices_to_approve" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">f192b5b63356921042877cbb9d5c7bdf</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>2</position>
+            <sum>false</sum>
+            <sys_created_by>sfarkas</sys_created_by>
+            <sys_created_on>2024-12-09 18:24:02</sys_created_on>
+            <sys_id>7592b5b63356921042877cbb9d5c7be1</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>sfarkas</sys_updated_by>
+            <sys_updated_on>2024-12-09 18:24:02</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>period_date</element>
+            <list_id display_value="x_dosny_dsinvoicea_invoices_to_approve" element="NULL" name="x_dosny_dsinvoicea_invoices_to_approve" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">f192b5b63356921042877cbb9d5c7bdf</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>3</position>
+            <sum>false</sum>
+            <sys_created_by>sfarkas</sys_created_by>
+            <sys_created_on>2024-12-09 18:24:02</sys_created_on>
+            <sys_id>7992b5b63356921042877cbb9d5c7be1</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>sfarkas</sys_updated_by>
+            <sys_updated_on>2024-12-09 18:24:02</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>vendor</element>
+            <list_id display_value="x_dosny_dsinvoicea_invoices_to_approve" element="NULL" name="x_dosny_dsinvoicea_invoices_to_approve" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">f192b5b63356921042877cbb9d5c7bdf</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>4</position>
+            <sum>false</sum>
+            <sys_created_by>sfarkas</sys_created_by>
+            <sys_created_on>2024-12-09 18:24:02</sys_created_on>
+            <sys_id>7d92b5b63356921042877cbb9d5c7be1</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>sfarkas</sys_updated_by>
+            <sys_updated_on>2024-12-09 18:24:02</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element/>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <name>x_dosny_dsinvoicea_invoices_to_approve</name>
+            <parent/>
+            <position/>
+            <relationship/>
+            <sum>false</sum>
+            <sys_class_name>sys_ui_list</sys_class_name>
+            <sys_created_by>sfarkas</sys_created_by>
+            <sys_created_on>2024-12-09 18:24:02</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>f192b5b63356921042877cbb9d5c7bdf</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_dosny_dsinvoicea_invoices_to_approve</sys_name>
+            <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
+            <sys_update_name>sys_ui_list_x_dosny_dsinvoicea_invoices_to_approve_null</sys_update_name>
+            <sys_updated_by>sfarkas</sys_updated_by>
+            <sys_updated_on>2024-12-09 18:24:02</sys_updated_on>
+            <sys_user/>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_list>
+    </sys_ui_list>
+</record_update>
