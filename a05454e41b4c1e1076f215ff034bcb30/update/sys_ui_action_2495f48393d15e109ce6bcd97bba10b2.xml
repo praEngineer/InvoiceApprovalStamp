@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_ui_action">
     <sys_ui_action action="INSERT_OR_UPDATE">
         <action_name>Start Signature Workflow</action_name>
-        <active>true</active>
+        <active>false</active>
         <client>true</client>
         <client_script_v2><![CDATA[function onClick(g_form) {
 
@@ -33,7 +33,8 @@
         <script><![CDATA[function _passByteStreamToEdmund(response, fileName, mimeType) { // Step #3
     try {
         g_form.addInfoMessage('Step #3 send unstamped PDF to restAPI: ' + ((typeof fileName === 'undefined') ? 'no fileName provided to _passByteStreamToEdmund' : fileName));
-        var endpoint = 'https://10.216.3.193:8443/restAPI';
+        // var endpoint = 'https://10.216.3.193:8443/restAPI';
+		var endpoint = 'https://bit-api-dev.dsnyad.nycnet/bit-stamp-api/restAPI';
         var base64EncodedPdf = response;
 
         var signerFirstSysId = g_form.getValue('signer_first');
@@ -88,6 +89,7 @@
                         "PoNumber": poNumberDisplayValue,
                         "SnRecordNumber": sysID,
                         "Pages": '1,2,4,6,10,20',
+						"testFlag": "true",
                     };
 
                     const headers = {
@@ -213,7 +215,7 @@ catch(error){
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>2495f48393d15e109ce6bcd97bba10b2</sys_id>
-        <sys_mod_count>32</sys_mod_count>
+        <sys_mod_count>34</sys_mod_count>
         <sys_name>BIT Procurement Invoice Approval Stamp</sys_name>
         <sys_overrides/>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
@@ -221,8 +223,8 @@ catch(error){
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
         <sys_update_name>sys_ui_action_2495f48393d15e109ce6bcd97bba10b2</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-10-22 14:18:11</sys_updated_on>
-        <table>x_dosny_bit_procur_bit_procurement_invoices</table>
+        <sys_updated_on>2024-12-30 17:18:49</sys_updated_on>
+        <table/>
         <ui11_compatible>true</ui11_compatible>
         <ui16_compatible>false</ui16_compatible>
     </sys_ui_action>

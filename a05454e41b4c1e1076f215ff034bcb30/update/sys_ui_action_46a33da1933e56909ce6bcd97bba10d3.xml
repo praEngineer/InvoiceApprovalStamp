@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_ui_action">
+    <sys_ui_action action="INSERT_OR_UPDATE">
+        <action_name>ApproveAndPaySEFappScope</action_name>
+        <active>true</active>
+        <client>true</client>
+        <client_script_v2><![CDATA[function onClick(g_form) {
+
+}]]></client_script_v2>
+        <comments>ApproveAndPaySEFappScope&#13;
+&#13;
+takes the sys_id of a recognized SN user and looks up the e-mail address of the same from the user table in SN&#13;
+only programmed to handle one pdf attachment&#13;
+calls Edmund Lee API to add a stamp in the PDF, and then initiate the Adobe Sign workflow</comments>
+        <condition>current.canWrite() </condition>
+        <form_action>true</form_action>
+        <form_button>true</form_button>
+        <form_button_v2>false</form_button_v2>
+        <form_context_menu>false</form_context_menu>
+        <form_link>false</form_link>
+        <form_menu_button_v2>false</form_menu_button_v2>
+        <form_style/>
+        <format_for_configurable_workspace>false</format_for_configurable_workspace>
+        <hint/>
+        <isolate_script>true</isolate_script>
+        <list_action>false</list_action>
+        <list_banner_button>false</list_banner_button>
+        <list_button>false</list_button>
+        <list_choice>false</list_choice>
+        <list_context_menu>false</list_context_menu>
+        <list_link>false</list_link>
+        <list_save_with_form_button>false</list_save_with_form_button>
+        <list_style/>
+        <messages/>
+        <name>BIT Procurement Invoice Approve and Pay</name>
+        <onclick>reactPOapprovalStamp()</onclick>
+        <order>300</order>
+        <script><![CDATA[function _passByteStreamToEdmund(response, fileName, mimeType) { // Step #3
+    try {
+		g_form.addInfoMessage("_passByteStreamToEdmund ended.");
+        g_form.addInfoMessage('Step #3 send unstamped PDF to restAPI: ' + ((typeof fileName === 'undefined') ? 'no fileName provided to _passByteStreamToEdmund' : fileName));
+
+		var period = '';
+		var invoicePeriodStart = g_form.getValue('invoiceperiodstart');
+		var invoicePeriodEnd = g_form.getValue('invoiceperiodend');
+		var dateObjStart = new Date(invoicePeriodStart);         // Convert string to JS Date
+		var dateObjEnd = new Date(invoicePeriodEnd);         // Convert string to JS Date
+		if(dateObjStart instanceof Date &&  dateObjEnd instanceof Date){
+			if(dateObjStart !== null && dateObjEnd !== null && dateObjStart.toDateString() !== 'Invalid Date' && dateObjEnd.toDateString() !== 'Invalid Date') {
+				g_form.addInfoMessage('typical invoice interval: ' + dateObjStart.toDateString() + ' - ' 
+					+ dateObjEnd.toDateString());
+			} 
+			else {
+				if(dateObjStart !== null ) {
+					g_form.addInfoMessage('simple Invoice interval: ' + dateObjStart.toDateString() );
+				} 
+				else {
+					var formattedStart = dateObjStart.toDateString(); // "1/5/2024" (format depends on user locale)
+					var formattedEnd = dateObjEnd.toDateString(); // "1/5/2024" (format depends on user locale)
+
+					if (!formattedEnd || formattedStart === formattedEnd || !(invoicePeriodEnd !== null)) {
+						period = formattedStart;
+					} else {
+						period = formattedStart + ' - ' + formattedEnd;
+					}
+					if(typeof period !== 'string' || typeof period === 'undefined' || period.length < 2){
+						throw new Error('Invoice interval not provided.');
+					}
+					else {
+						g_form.addInfoMessage('Invoice interval: ' + period);
+					}				}
+			}
+		}
+		else if(dateObjStart instanceof Date ){
+			if(dateObjStart !== null ) {
+				g_form.addInfoMessage('Invoice interval: ' + dateObjStart.toDateString() );
+			} 
+			else {
+				throw new Error('Invoice start date not specified.');
+			}
+		}
+		else {
+			throw new Error('Invoice interval not specified with date objects.)');
+		}
+
+		var sysID = g_form.getUniqueValue();  // Sys_id of the current record on the form
+
+        // var endpoint = 'https://10.216.3.193:8443/restAPI';
+		var endpoint = 'https://bit-api-dev.dsnyad.nycnet/bit-stamp-api/restAPI';
+        var base64EncodedPdf = response;
+
+		if(!base64EncodedPdf){
+			throw new Error('_passByteStreamToEdmund has as an empty response parameter');
+		}
+
+        var signerFirstSysId = g_form.getValue('invoice_approved_by'); // first
+        var signerSecondSysId = g_form.getValue('payment_authorized_by'); // second
+		var poNumberDisplayValue = g_form.getDisplayBox('invoice_for_this_po').value;
+
+		if(!poNumberDisplayValue){
+			throw new Error('_passByteStreamToEdmund payload needs a valid PO number entry.');
+		}
+		                
+		if(!signerFirstSysId && !signerSecondSysId){
+			throw new Error('_passByteStreamToEdmund payload needs two user sys_ids who approve/authorize payment.  Both are blank.');
+		}
+		else if(!signerFirstSysId){
+			throw new Error('_passByteStreamToEdmund payload needs two user sys_ids who approve/authorize payment.  Approver (first) is blank.');
+		}
+		else if(!signerSecondSysId){
+			throw new Error('_passByteStreamToEdmund payload needs two user sys_ids who approve/authorize payment.  Authorizing (second) is blank.');
+		}
+		else {
+			g_form.addInfoMessage('find email of ' + signerFirstSysId + ' and ' + signerSecondSysId);
+		}
+
+        var signerFirstEmail = '';
+        var signerSecondEmail = '';
+
+        var ga = new GlideAjax('x_dosny_dsinvoicea.AAIfileUploadUtility');
+        ga.addParam('sysparm_name', 'getEmailBySysId');
+        ga.addParam('sys_id', signerFirstSysId);  // Getting email of the first signer
+
+        ga.getXMLAnswer(function(firstResponse) {
+			try{
+				signerFirstEmail = firstResponse;
+
+				var ga2 = new GlideAjax('x_dosny_dsinvoicea.AAIfileUploadUtility'); // New GlideAjax for second signer
+				ga2.addParam('sysparm_name', 'getEmailBySysId');
+				ga2.addParam('sys_id', signerSecondSysId);  // Getting email of the second signer
+
+				ga2.getXMLAnswer(function(secondResponse) {
+					try {
+						signerSecondEmail = secondResponse;
+						if(base64EncodedPdf.length >0){
+							g_form.addInfoMessage('_passByteStreamToEdmund: get approval from ' + signerFirstEmail + ' and authorization from ' + signerSecondEmail);
+						}
+						else {
+							g_form.addInfoMessage('_passByteStreamToEdmund: base64EncodedPdf is empty');
+						}
+
+						// Validate all attributes have non-trivial values
+						if (
+							(typeof period !== 'undefined') &&
+							typeof signerFirstEmail !== 'undefined' &&
+							typeof signerSecondEmail !== 'undefined' &&
+							typeof fileName !== 'undefined' &&
+							typeof poNumberDisplayValue !== 'undefined' &&
+							typeof sysID !== 'undefined'
+						) { //
+							var payload = {
+								"Period": period,
+								"File": base64EncodedPdf,
+								"Signer1": signerFirstEmail,
+								"Signer2": signerSecondEmail,
+								"Filename": fileName,
+								"poNumber": poNumberDisplayValue,
+								"snRecordNumber": sysID,
+								"Pages": g_form.getValue('stampthesepages'), 
+								"testFlag": 'true',
+							};
+
+							var headers = {
+								'Access-Control-Allow-Origin': '*',
+								'Accept': 'application/json',
+								'Content-Type': 'application/json;charset=UTF-8',
+							};
+
+							// Fetch API call to make a POST request using promises
+							fetch(endpoint, {
+								method: "POST",
+								headers: headers,
+								body: JSON.stringify(payload)  // Send the payload as JSON
+							})
+							.then(function(response) {
+								if (!response.ok) {
+									// Return a promise that reads the text, parses, and throws
+									return response.text().then(function(text) {
+										var json = JSON.parse(text);
+										throw new Error("_passByteStreamToEdmund fetch failed: " + json.response);
+									});
+								} else {
+									// Return the JSON-parsed body
+									return response.json();
+								}
+							})
+							.then(function(data) {
+								// data is already an object. You cannot pass an object into JSON.parse() - it requires a string.
+								if(typeof data === 'string'){
+									g_form.addInfoMessage('Data as string sent successfully: ' + data);
+								}
+								else if(typeof data === 'object'){
+										g_form.addInfoMessage('Data as object sent successfully: ' 
+											+ JSON.parse(JSON.stringify(data)).response
+										);
+								}
+								else {  
+									g_form.addInfoMessage('Data sent but not parsed correctly: ' + data);
+								}
+								
+							})
+							.catch(function(err) {
+								g_form.addInfoMessage('_passByteStreamToEdmund fetch error: ' + err.message);
+							});
+
+						} else {
+							g_form.addInfoMessage('_passByteStreamToEdmund payload item(s) is(are) missing a value');
+						}
+					}
+					catch(ga2Err){
+						throw new Error('ga2Err: ' + ga2Err.message);
+					}
+
+				});
+			}
+			catch(ansErr){
+				g_form.addInfoMessage('_passByteStreamToEdmund getAnswer err: ' + ansErr.message);
+			}
+        });
+
+    } catch (err1) {
+        throw new Error(err1.message);
+    }
+}
+
+
+function _scriptIncludeResponse(response, fileName, mimeType){ // Step #2
+	// Use Array.find() to get the first attachment with 'Invoice' in the file name and without '_stamped'
+	try {
+		var attachments = response; 
+
+		// If response is a string, parse it into an array of objects
+		if (typeof attachments === 'string') {
+			try {
+				attachments = JSON.parse(response);
+			} catch (error) {
+				throw new Error('_scriptIncludeResponse failed to parse response JSON into attachment(s)');
+			}
+		}
+
+		if(!attachments){
+			throw new Error('no attachment array passed into _scriptIncludeResponse');
+		}
+		
+		if(!Array.isArray(attachments)){
+			attachments = [attachments];
+		}
+		
+		var selectedAttachment = attachments.find(attachment => 
+			attachment.file_name.includes('INVOICE') && !attachment.file_name.includes('_stamped')
+		);
+		
+		if (!selectedAttachment) {
+			throw new Error('prperly named selectedAttachment not found');
+		} else {
+			// If an attachment matching the criteria is found
+			fileName = selectedAttachment.file_name;  // Retrieve the file name
+			mimeType = selectedAttachment.content_type;  // Retrieve the MIME type
+		}
+
+		var recordSysId = g_form.getUniqueValue();  // Get the current record's sys_id
+
+		var tableName = 'x_dosny_bit_procur_bit_procurement_invoices'; // could not determine programmatically with common user ID
+
+		var ga = new GlideAjax('global.AttachmentAPIinGlobalScope');
+		if(!ga){
+			throw new Error('Cannot instantiate AttachmentAPIinGlobalScope');
+		}
+		ga.addParam('sysparm_name', 'readAttIntoBase64');
+		ga.addParam('tableName', tableName);
+		ga.addParam('fileName', fileName);				
+		ga.addParam('recordSysId', recordSysId);	
+
+		g_form.addInfoMessage('readAttIntoBase64 the file ' + fileName + ' attached to row ' + recordSysId + ' of table ' + tableName);
+
+		// Use an anonymous function to wrap the call and pass file.name
+		ga.getXMLAnswer(function(response) {
+			try{
+				if(!response){
+					throw new Error('no meaningful response from readAttIntoBase64');
+				}
+				else {
+					g_form.addInfoMessage('call _passByteStreamToEdmund');
+					_passByteStreamToEdmund(response, fileName, mimeType); // Pass file.name to the callback
+				}
+
+			}
+			catch(err2){
+				g_form.addInfoMessage('_passByteStreamToEdmund encountered: ' + err2.message);
+			}
+		});
+
+	}
+	catch(errOuter){
+		g_form.addInfoMessage('_scriptIncludeResponse encountered: ' + errOuter.message);
+	}
+}
+
+function reactPOapprovalStamp() {
+	try {
+		g_form.addInfoMessage("reactPOapprovalStamp (ApproveAndPaySEFappScope) was clicked.");
+		var sysID = g_form.getUniqueValue(); 
+		// Now I have the sys_id of the current record on the form.
+		g_form.addInfoMessage("Now I have the sys_id of the current record on the form.");
+
+		var fileName = 'selectedAttachment.file_name';  // initialize the file name
+		var mimeType = 'selectedAttachment.content_type';  // initialize the MIME type
+
+		// Use an anonymous function to wrap the call and pass file.name
+		g_form.addInfoMessage(fileName + ", " + mimeType);
+
+		// var ga0 = new GlideAjax('x_dosny_dsinvoicea.AAIfileUploadUtility');
+		// ga0.addParam('sysparm_name', 'canIconnect');
+		// ga0.addParam('aString','is working as I expect');
+		// ga0.getXMLAnswer(function(response) {
+		// try {
+		// 	var result = JSON.parse(response);
+		// 	g_form.addInfoMessage('Message from canIconnect: ' + result);
+		// } catch(e) {
+		// 	g_form.addInfoMessage('Error in canIconnect callback: ' + e.message);
+		// }
+		// });
+
+		var ga1 = new GlideAjax('x_dosny_dsinvoicea.AAIfileUploadUtility');
+		if(!ga1){
+			throw new Error('reactPOapprovalStamp failed to initalize x_dosny_dsinvoicea.AAIfileUploadUtility');
+		}
+		ga1.addParam('sysparm_name', 'getAttachments');
+		ga1.addParam('recordSysId', sysID); 
+
+		ga1.getXMLAnswer(function(response) {
+			try {
+				_scriptIncludeResponse(response, fileName, mimeType);
+			} catch(e) {
+				g_form.addInfoMessage('Error in reactPOapprovalStamp getXMLAnswer callback: ' + e.message);
+			}
+		});
+
+	}
+	catch(error){
+		g_form.addInfoMessage('UI Action for reactPOapprovalStamp problem: '+ error.message);
+	}
+}]]></script>
+        <show_insert>true</show_insert>
+        <show_multiple_update>false</show_multiple_update>
+        <show_query>false</show_query>
+        <show_update>true</show_update>
+        <sys_class_name>sys_ui_action</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-12-30 17:50:39</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>46a33da1933e56909ce6bcd97bba10d3</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>BIT Procurement Invoice Approve and Pay</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
+        <sys_update_name>sys_ui_action_46a33da1933e56909ce6bcd97bba10d3</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-12-30 17:57:20</sys_updated_on>
+        <table>x_dosny_bit_procur_bit_procurement_invoices</table>
+        <ui11_compatible>true</ui11_compatible>
+        <ui16_compatible>false</ui16_compatible>
+    </sys_ui_action>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>46a33da1933e56909ce6bcd97bba10d3</id>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-12-30 17:50:38</sys_created_on>
+        <sys_id>495479e1933e56909ce6bcd97bba1077</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-12-30 17:50:38</sys_updated_on>
+        <table>sys_ui_action</table>
+        <use_es_latest>false</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

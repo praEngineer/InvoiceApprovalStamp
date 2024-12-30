@@ -9,377 +9,377 @@
         <mobile_callable>false</mobile_callable>
         <name>AAIfileUploadUtility</name>
         <sandbox_callable>true</sandbox_callable>
-        <script><![CDATA[var AAIfileUploadUtility = Class.create();
-AAIfileUploadUtility.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
-    // initialize: function() {},
-	canIconnectScoped: function() {
-		/*
-		you may have noticed that we don't return any values from our function. We can if we 
-		want, but it is not necessary. The AbstractAjaxProcessor class (which is our 
-		superclass - which means we're extending it) has built-in functionality that returns 
-		the entire XML document when we're through. 
-		*/
-		var strResponse = 'correct response from canIconnect';
-		return JSON.stringify(strResponse);
-		//return strResponse;
-	},
+        <script><![CDATA[// var AAIfileUploadUtility = Class.create();
+// AAIfileUploadUtility.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+//     // initialize: function() {},
+// 	canIconnectScoped: function() {
+// 		/*
+// 		you may have noticed that we don't return any values from our function. We can if we 
+// 		want, but it is not necessary. The AbstractAjaxProcessor class (which is our 
+// 		superclass - which means we're extending it) has built-in functionality that returns 
+// 		the entire XML document when we're through. 
+// 		*/
+// 		var strResponse = 'correct response from canIconnect';
+// 		return JSON.stringify(strResponse);
+// 		//return strResponse;
+// 	},
 
-    uploadPDFscoped: function(tableName, recordSysId, fileName, filetype, base64Content) {
-		var step = 'start try';
-        try {
-            // Base64 content is passed directly; assume it's stored or handled 
-			// by another system
-			// GlideStringUtil.base64Encode works only in global scope
-			var base64ContentString = GlideStringUtil.base64Encode(base64Content);
+//     uploadPDFscoped: function(tableName, recordSysId, fileName, filetype, base64Content) {
+// 		var step = 'start try';
+//         try {
+//             // Base64 content is passed directly; assume it's stored or handled 
+// 			// by another system
+// 			// GlideStringUtil.base64Encode works only in global scope
+// 			var base64ContentString = GlideStringUtil.base64Encode(base64Content);
 
-			var rec = new GlideRecord(tableName);
-			rec.get(recordSysId);
+// 			var rec = new GlideRecord(tableName);
+// 			rec.get(recordSysId);
 
-			// Check if the record was found
-			if (rec.isValidRecord()) {
-				var attachment = new GlideSysAttachment();
-				// writeBase64(GlideRecord now_GR, String fileName, String contentType, String content_base64Encoded)
-				var attachmentSysId = attachment.writeBase64(rec, fileName, filetype, base64ContentString);
+// 			// Check if the record was found
+// 			if (rec.isValidRecord()) {
+// 				var attachment = new GlideSysAttachment();
+// 				// writeBase64(GlideRecord now_GR, String fileName, String contentType, String content_base64Encoded)
+// 				var attachmentSysId = attachment.writeBase64(rec, fileName, filetype, base64ContentString);
 
-				return JSON.stringify({
-					attachmentSysId: attachmentSysId,
-					tableName: tableName,
-					recordSysId: recordSysId
-				});	
-			}
-			else {
-				return JSON.stringify({
-					attachmentSysId: '-2758',
-					tableName: tableName,
-					recordSysId: '0'
-				});	
-			}
+// 				return JSON.stringify({
+// 					attachmentSysId: attachmentSysId,
+// 					tableName: tableName,
+// 					recordSysId: recordSysId
+// 				});	
+// 			}
+// 			else {
+// 				return JSON.stringify({
+// 					attachmentSysId: '-2758',
+// 					tableName: tableName,
+// 					recordSysId: '0'
+// 				});	
+// 			}
 
-        } catch (error) {
-            return JSON.stringify({
-                attachmentSysId: '0',
-                tableName: step + ': ' + error.message,
-                recordSysId: '0'
-            });
-        }
-    },
+//         } catch (error) {
+//             return JSON.stringify({
+//                 attachmentSysId: '0',
+//                 tableName: step + ': ' + error.message,
+//                 recordSysId: '0'
+//             });
+//         }
+//     },
 
-	createAdobeSignTransDocId: function() {
+// 	createAdobeSignTransDocId: function() {
 
-	},
+// 	},
 
-    createAdobeSignAgreement: function(lclAgreementPayload) {
-        try {
-            // Create the RESTMessageV2 object
-            var request = new sn_ws.RESTMessageV2();
-            request.setHttpMethod("post");
-            request.setEndpoint("https://api.na1.adobesign.com/api/rest/v6/agreements");
+//     createAdobeSignAgreement: function(lclAgreementPayload) {
+//         try {
+//             // Create the RESTMessageV2 object
+//             var request = new sn_ws.RESTMessageV2();
+//             request.setHttpMethod("post");
+//             request.setEndpoint("https://api.na1.adobesign.com/api/rest/v6/agreements");
             
-            // Encode the credentials
-            var credentials = GlideStringUtil.base64Encode('sfarkas:Junha#2003');
-            request.setRequestHeader("Authorization", "Bearer " + credentials);
-            request.setRequestHeader("Content-Type", "application/json");
-            request.setRequestBody(JSON.stringify(lclAgreementPayload));
+//             // Encode the credentials
+//             var credentials = GlideStringUtil.base64Encode('sfarkas:Junha#2003');
+//             request.setRequestHeader("Authorization", "Bearer " + credentials);
+//             request.setRequestHeader("Content-Type", "application/json");
+//             request.setRequestBody(JSON.stringify(lclAgreementPayload));
 
-            // Execute the request asynchronously
-            request.executeAsync().then(function(response) {
-                var responseBody = response.getBody();
-                var httpStatus = response.getStatusCode();
+//             // Execute the request asynchronously
+//             request.executeAsync().then(function(response) {
+//                 var responseBody = response.getBody();
+//                 var httpStatus = response.getStatusCode();
 
-                if (httpStatus === 201) {
-                    var responseJson = JSON.parse(responseBody);
-                    var agreementId = responseJson.id; // The ID of the newly created agreement
-                    gs.info("Agreement created successfully. Agreement ID: " + agreementId);
+//                 if (httpStatus === 201) {
+//                     var responseJson = JSON.parse(responseBody);
+//                     var agreementId = responseJson.id; // The ID of the newly created agreement
+//                     gs.info("Agreement created successfully. Agreement ID: " + agreementId);
 
-                } else {
-                    gs.error("Failed to create agreement. Status Code: " + httpStatus + ". Response: " + responseBody);
-                }
-            }).catch(function(error) {
-                gs.error("An error occurred: " + error.message);
-            });
-        } catch (ex) {
-            gs.error("An exception occurred: " + ex.getMessage());
-        }
-    },
+//                 } else {
+//                     gs.error("Failed to create agreement. Status Code: " + httpStatus + ". Response: " + responseBody);
+//                 }
+//             }).catch(function(error) {
+//                 gs.error("An error occurred: " + error.message);
+//             });
+//         } catch (ex) {
+//             gs.error("An exception occurred: " + ex.getMessage());
+//         }
+//     },
 
-	createAdobeSignAgreementFullModel: function(transientDocumentId, poSysId) {
-		var dateCreted = new Date().toISOString(); 
-		return {
-		"fileInfos": [
-			{
-			"document": {
-				"createdDate": dateCreted,
-				"id": transientDocumentId,
-				"label": "",
-				"numPages": 10,
-				"mimeType": "application/pdf",
-				"name": poSysId
-			},
-			"label": "",
-			"libraryDocumentId": "",
-			"notarize": false,
-			"transientDocumentId": "",
-			"urlFileInfo": {
-				"mimeType": "",
-				"name": "",
-				"url": ""
-			}
-			}
-		],
-		"name": "",
-		"participantSetsInfo": [
-			{
-			"order": 1,
-			"role": "",
-			"electronicSealId": "",
-			"id": "",
-			"label": "",
-			"memberInfos": [
-				{
-				"deliverableEmail": false,
-				"email": "",
-				"id": "",
-				"name": "",
-				"phoneDeliveryInfo": {
-					"countryCode": "",
-					"countryIsoCode": "",
-					"phone": ""
-				},
-				"securityOption": {
-					"authenticationMethod": "",
-					"digAuthInfo": {
-					"providerId": "",
-					"providerDesc": "",
-					"providerName": ""
-					},
-					"nameInfo": {
-					"firstName": "",
-					"lastName": ""
-					},
-					"notaryAuthentication": "",
-					"password": "",
-					"phoneInfo": {
-					"countryCode": "",
-					"countryIsoCode": "",
-					"phone": ""
-					}
-				}
-				}
-			],
-			"name": "",
-			"privateMessage": "",
-			"providerParticipationInfo": {
-				"label": "",
-				"participationId": "",
-				"participationSetId": ""
-			},
-			"visiblePages": [
-				""
-			]
-			}
-		],
-		"signatureType": "",
-		"state": "",
-		"agreementSettingsInfo": {
-			"canEditAgreementSettings": false,
-			"canEditElectronicSeals": false,
-			"canEditFiles": false,
-			"hipaaEnabled": false
-		},
-		"ccs": [
-			{
-			"email": "",
-			"label": "",
-			"visiblePages": [
-				""
-			]
-			}
-		],
-		"createdDate": "",
-		"createdGroupId": "",
-		"deviceInfo": {
-			"applicationDescription": "",
-			"deviceDescription": "",
-			"deviceTime": ""
-		},
-		"documentRetentionAppliedDate": "date",
-		"documentVisibilityEnabled": false,
-		"emailOption": {
-			"sendOptions": {
-			"completionEmails": "",
-			"inFlightEmails": "",
-			"initEmails": ""
-			}
-		},
-		"expirationTime": "",
-		"externalId": {
-			"id": ""
-		},
-		"firstReminderDelay": 1,
-		"formFieldGenerators": [
-			{
-			"formFieldDescription": {
-				"alignment": "",
-				"backgroundColor": "",
-				"borderColor": "",
-				"borderStyle": "",
-				"borderWidth": 0,
-				"calculated": false,
-				"conditionalAction": {
-				"action": "",
-				"anyOrAll": "",
-				"predicates": [
-					{
-					"fieldLocationIndex": 1,
-					"fieldName": "",
-					"operator": "",
-					"value": ""
-					}
-				]
-				},
-				"contentType": "",
-				"currency": "",
-				"defaultValue": "",
-				"displayFormat": "",
-				"displayFormatType": "",
-				"displayLabel": "",
-				"fontColor": "",
-				"fontName": "",
-				"fontSize": 0,
-				"hiddenOptions": [
-				""
-				],
-				"hyperlink": {
-				"documentLocation": {
-					"height": 0,
-					"left": 0,
-					"pageNumber": 1,
-					"top": 0,
-					"width": 0
-				},
-				"linkType": "",
-				"url": ""
-				},
-				"inputType": "",
-				"masked": false,
-				"maskingText": "",
-				"maxLength": 1,
-				"maxValue": 0,
-				"minLength": 1,
-				"minValue": 0,
-				"origin": "",
-				"radioCheckType": "",
-				"readOnly": false,
-				"required": false,
-				"tooltip": "",
-				"urlOverridable": false,
-				"validation": "",
-				"validationData": "",
-				"validationErrMsg": "",
-				"valueExpression": "",
-				"visible": false,
-				"visibleOptions": [
-				""
-				]
-			},
-			"formFieldNamePrefix": "",
-			"generatorType": "",
-			"participantSetName": "",
-			"anchorTextInfo": {
-				"anchorText": "",
-				"anchoredFormFieldLocation": {
-				"height": 0,
-				"width": 0,
-				"offsetX": 0,
-				"offsetY": 0
-				},
-				"fileInfoLabel": "",
-				"pages": [
-				"int"
-				]
-			},
-			"linked": false
-			}
-		],
-		"formFieldLayerTemplates": [
-			{
-			"document": {
-				"createdDate": "date",
-				"id": "",
-				"label": "",
-				"numPages": 1,
-				"mimeType": "",
-				"name": ""
-			},
-			"label": "",
-			"libraryDocumentId": "",
-			"notarize": false,
-			"transientDocumentId": "",
-			"urlFileInfo": {
-				"mimeType": "",
-				"name": "",
-				"url": ""
-			}
-			}
-		],
-		"groupId": "",
-		"hasFormFieldData": false,
-		"hasSignerIdentityReport": false,
-		"id": "",
-		"isDocumentRetentionApplied": false,
-		"lastEventDate": "date",
-		"locale": "",
-		"mergeFieldInfo": [
-			{
-			"defaultValue": "",
-			"fieldName": ""
-			}
-		],
-		"message": "",
-		"notaryInfo": {
-			"appointment": "",
-			"notaryEmail": "",
-			"notaryType": "",
-			"note": "",
-			"payment": ""
-		},
-		"parentId": "",
-		"postSignOption": {
-			"redirectDelay": 1,
-			"redirectUrl": ""
-		},
-		"redirectOptions": [
-			{
-			"action": "",
-			"url": "",
-			"delay": 1
-			}
-		],
-		"reminderFrequency": "",
-		"securityOption": {
-			"contentProtectionPreference": {
-			"external": "",
-			"internal": ""
-			},
-			"openPassword": ""
-		},
-		"sendType": "",
-		"senderEmail": "",
-		"senderSigns": "",
-		"status": "",
-		"type": "",
-		"vaultingInfo": {
-			"enabled": false
-		},
-		"workflowId": ""
-		}
-	},
+// 	createAdobeSignAgreementFullModel: function(transientDocumentId, poSysId) {
+// 		var dateCreted = new Date().toISOString(); 
+// 		return {
+// 		"fileInfos": [
+// 			{
+// 			"document": {
+// 				"createdDate": dateCreted,
+// 				"id": transientDocumentId,
+// 				"label": "",
+// 				"numPages": 10,
+// 				"mimeType": "application/pdf",
+// 				"name": poSysId
+// 			},
+// 			"label": "",
+// 			"libraryDocumentId": "",
+// 			"notarize": false,
+// 			"transientDocumentId": "",
+// 			"urlFileInfo": {
+// 				"mimeType": "",
+// 				"name": "",
+// 				"url": ""
+// 			}
+// 			}
+// 		],
+// 		"name": "",
+// 		"participantSetsInfo": [
+// 			{
+// 			"order": 1,
+// 			"role": "",
+// 			"electronicSealId": "",
+// 			"id": "",
+// 			"label": "",
+// 			"memberInfos": [
+// 				{
+// 				"deliverableEmail": false,
+// 				"email": "",
+// 				"id": "",
+// 				"name": "",
+// 				"phoneDeliveryInfo": {
+// 					"countryCode": "",
+// 					"countryIsoCode": "",
+// 					"phone": ""
+// 				},
+// 				"securityOption": {
+// 					"authenticationMethod": "",
+// 					"digAuthInfo": {
+// 					"providerId": "",
+// 					"providerDesc": "",
+// 					"providerName": ""
+// 					},
+// 					"nameInfo": {
+// 					"firstName": "",
+// 					"lastName": ""
+// 					},
+// 					"notaryAuthentication": "",
+// 					"password": "",
+// 					"phoneInfo": {
+// 					"countryCode": "",
+// 					"countryIsoCode": "",
+// 					"phone": ""
+// 					}
+// 				}
+// 				}
+// 			],
+// 			"name": "",
+// 			"privateMessage": "",
+// 			"providerParticipationInfo": {
+// 				"label": "",
+// 				"participationId": "",
+// 				"participationSetId": ""
+// 			},
+// 			"visiblePages": [
+// 				""
+// 			]
+// 			}
+// 		],
+// 		"signatureType": "",
+// 		"state": "",
+// 		"agreementSettingsInfo": {
+// 			"canEditAgreementSettings": false,
+// 			"canEditElectronicSeals": false,
+// 			"canEditFiles": false,
+// 			"hipaaEnabled": false
+// 		},
+// 		"ccs": [
+// 			{
+// 			"email": "",
+// 			"label": "",
+// 			"visiblePages": [
+// 				""
+// 			]
+// 			}
+// 		],
+// 		"createdDate": "",
+// 		"createdGroupId": "",
+// 		"deviceInfo": {
+// 			"applicationDescription": "",
+// 			"deviceDescription": "",
+// 			"deviceTime": ""
+// 		},
+// 		"documentRetentionAppliedDate": "date",
+// 		"documentVisibilityEnabled": false,
+// 		"emailOption": {
+// 			"sendOptions": {
+// 			"completionEmails": "",
+// 			"inFlightEmails": "",
+// 			"initEmails": ""
+// 			}
+// 		},
+// 		"expirationTime": "",
+// 		"externalId": {
+// 			"id": ""
+// 		},
+// 		"firstReminderDelay": 1,
+// 		"formFieldGenerators": [
+// 			{
+// 			"formFieldDescription": {
+// 				"alignment": "",
+// 				"backgroundColor": "",
+// 				"borderColor": "",
+// 				"borderStyle": "",
+// 				"borderWidth": 0,
+// 				"calculated": false,
+// 				"conditionalAction": {
+// 				"action": "",
+// 				"anyOrAll": "",
+// 				"predicates": [
+// 					{
+// 					"fieldLocationIndex": 1,
+// 					"fieldName": "",
+// 					"operator": "",
+// 					"value": ""
+// 					}
+// 				]
+// 				},
+// 				"contentType": "",
+// 				"currency": "",
+// 				"defaultValue": "",
+// 				"displayFormat": "",
+// 				"displayFormatType": "",
+// 				"displayLabel": "",
+// 				"fontColor": "",
+// 				"fontName": "",
+// 				"fontSize": 0,
+// 				"hiddenOptions": [
+// 				""
+// 				],
+// 				"hyperlink": {
+// 				"documentLocation": {
+// 					"height": 0,
+// 					"left": 0,
+// 					"pageNumber": 1,
+// 					"top": 0,
+// 					"width": 0
+// 				},
+// 				"linkType": "",
+// 				"url": ""
+// 				},
+// 				"inputType": "",
+// 				"masked": false,
+// 				"maskingText": "",
+// 				"maxLength": 1,
+// 				"maxValue": 0,
+// 				"minLength": 1,
+// 				"minValue": 0,
+// 				"origin": "",
+// 				"radioCheckType": "",
+// 				"readOnly": false,
+// 				"required": false,
+// 				"tooltip": "",
+// 				"urlOverridable": false,
+// 				"validation": "",
+// 				"validationData": "",
+// 				"validationErrMsg": "",
+// 				"valueExpression": "",
+// 				"visible": false,
+// 				"visibleOptions": [
+// 				""
+// 				]
+// 			},
+// 			"formFieldNamePrefix": "",
+// 			"generatorType": "",
+// 			"participantSetName": "",
+// 			"anchorTextInfo": {
+// 				"anchorText": "",
+// 				"anchoredFormFieldLocation": {
+// 				"height": 0,
+// 				"width": 0,
+// 				"offsetX": 0,
+// 				"offsetY": 0
+// 				},
+// 				"fileInfoLabel": "",
+// 				"pages": [
+// 				"int"
+// 				]
+// 			},
+// 			"linked": false
+// 			}
+// 		],
+// 		"formFieldLayerTemplates": [
+// 			{
+// 			"document": {
+// 				"createdDate": "date",
+// 				"id": "",
+// 				"label": "",
+// 				"numPages": 1,
+// 				"mimeType": "",
+// 				"name": ""
+// 			},
+// 			"label": "",
+// 			"libraryDocumentId": "",
+// 			"notarize": false,
+// 			"transientDocumentId": "",
+// 			"urlFileInfo": {
+// 				"mimeType": "",
+// 				"name": "",
+// 				"url": ""
+// 			}
+// 			}
+// 		],
+// 		"groupId": "",
+// 		"hasFormFieldData": false,
+// 		"hasSignerIdentityReport": false,
+// 		"id": "",
+// 		"isDocumentRetentionApplied": false,
+// 		"lastEventDate": "date",
+// 		"locale": "",
+// 		"mergeFieldInfo": [
+// 			{
+// 			"defaultValue": "",
+// 			"fieldName": ""
+// 			}
+// 		],
+// 		"message": "",
+// 		"notaryInfo": {
+// 			"appointment": "",
+// 			"notaryEmail": "",
+// 			"notaryType": "",
+// 			"note": "",
+// 			"payment": ""
+// 		},
+// 		"parentId": "",
+// 		"postSignOption": {
+// 			"redirectDelay": 1,
+// 			"redirectUrl": ""
+// 		},
+// 		"redirectOptions": [
+// 			{
+// 			"action": "",
+// 			"url": "",
+// 			"delay": 1
+// 			}
+// 		],
+// 		"reminderFrequency": "",
+// 		"securityOption": {
+// 			"contentProtectionPreference": {
+// 			"external": "",
+// 			"internal": ""
+// 			},
+// 			"openPassword": ""
+// 		},
+// 		"sendType": "",
+// 		"senderEmail": "",
+// 		"senderSigns": "",
+// 		"status": "",
+// 		"type": "",
+// 		"vaultingInfo": {
+// 			"enabled": false
+// 		},
+// 		"workflowId": ""
+// 		}
+// 	},
 
-    type: 'AAIfileUploadUtility'
-});
+//     type: 'AAIfileUploadUtility'
+// });
 
-var AAIfileUploadUtilityGlobal = Class.create();
-AAIfileUploadUtilityGlobal.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+var AAIfileUploadUtility = Class.create();
+AAIfileUploadUtility.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
     // initialize: function() {},
 	canIconnect: function() {
 		/*
@@ -683,9 +683,9 @@ AAIfileUploadUtilityGlobal.prototype = Object.extendsObject(global.AbstractAjaxP
 // -----------------------
 
 	getAttachments: function() {
-		var recordSysId = this.getParameter('sys_id'); // Get sys_id from client-side request
+		var attrib = this.getParameter('recordSysId');
 		var attachmentGr = new GlideRecord('sys_attachment');
-		attachmentGr.addQuery('table_sys_id', recordSysId);
+		attachmentGr.addQuery('table_sys_id', attrib);
 		attachmentGr.query();
 		
 		var attachments = [];
@@ -699,7 +699,18 @@ AAIfileUploadUtilityGlobal.prototype = Object.extendsObject(global.AbstractAjaxP
 		}
 		
 		return JSON.stringify(attachments);
-  },
+    },
+
+
+	getEmailBySysId: function() {
+		var sysId = this.getParameter('sys_id');
+		var userGR = new GlideRecord('sys_user');
+		if (userGR.get(sysId)) {
+			return userGR.email;
+		} else {
+			return 'User not found';
+		}
+	},
 
 // -----------------------
 
@@ -1066,32 +1077,39 @@ AAIfileUploadUtilityGlobal.prototype = Object.extendsObject(global.AbstractAjaxP
 		}
 	},
 
-	readAttIntoBase64: function() {
+	readAttIntoBase64scoped: function() {
+		var whichStep = "Step 01";
 		try {
 			var attGr = new GlideRecord('sys_attachment');  // Go to sys_attachment table
 			if(attGr === undefined || !attGr){
-				gs.error('readAttIntoBase64 new GlideRecord(sys_attachment) did not return an expected value');
+				gs.error(whichStep + ' in readAttIntoBase64 new GlideRecord(sys_attachment) did not return an expected value');
 				return 'new GlideRecord for sys_attachment is broken';
 			}
 
+			whichStep = "Step 02";
 			var tableName = this.getParameter('tableName');
 			gs.info('readAttIntoBase64 tableName is: ' + tableName);
 			attGr.addQuery('table_name', tableName); // Specify your table name
 			
+			whichStep = "Step 03";
 			var recordSysId = this.getParameter('recordSysId'); // sys_id of the record that contains the attachment
 			gs.info('readAttIntoBase64 recordSysId is: ' + recordSysId);
 			attGr.addQuery('table_sys_id', recordSysId); // sys_id of the record with the attachment
 			
+			whichStep = "Step 04";
 			var fileName = this.getParameter('fileName');
 			gs.info('readAttIntoBase64 fileName is: ' + fileName);
 			attGr.addQuery('file_name', fileName); // Full name and extension of the attachment
 
+			whichStep = "Step 05";
 			attGr.orderByDesc('sys_updated_on'); // Get the latest attachment
 			attGr.query();
 			
 			if (attGr.next()) {
+				whichStep = "Step 06";
 				if(!!attGr || attGr !== undefined){
 					var attSysId = attGr.sys_id;
+					whichStep = "Step 07";
 					if(!attSysId) {
 						gs.info('readAttIntoBase64 attSysId is null');
 
@@ -1100,35 +1118,111 @@ AAIfileUploadUtilityGlobal.prototype = Object.extendsObject(global.AbstractAjaxP
 						gs.info('readAttIntoBase64 attSysId has a value of: ' + attSysId);
 
 					}
+					whichStep = "Step 08a";
 					var gsa = new global.GlideSysAttachment();
+					whichStep = "Step 08b";
+					if(!gsa){
+						gs.error(whichStep + ' in readAttIntoBase64 does not have a gsa object');
+						throw new Error(whichStep + ' in readAttIntoBase64 does not have a gsa object');						
+					}
+					whichStep = "Step 08c";
+					if(!attGr){
+						gs.error(whichStep + ' in readAttIntoBase64 does not have a attGr object');
+						throw new Error(whichStep + ' in readAttIntoBase64 does not have a attGr object');
+					}
+					whichStep = "Step 08d";
 					var attachmentData = gsa.getBytes(attGr); // Pass the GlideRecord to getBytes()
 					// The getBytes() method requires a GlideRecord pointing to a row in the sys_attachment table.
 
 					if (attachmentData !== undefined && !!attachmentData) { // not undefined and not null
-						gs.info('readAttIntoBase64 gsa.getBytes(attGr) returned a non-trivial value');
+						whichStep = "Step 09";
+						gs.info(whichStep + ' in readAttIntoBase64 gsa.getBytes(attGr) returned a non-trivial value');
 						var base64EncodedData = GlideStringUtil.base64Encode(attachmentData); // Convert to Base64
 						return base64EncodedData; // Return the Base64 string to the client
 					} else {
-						gs.error('readAttIntoBase64 gsa.getBytes(attGr) did not return an expected attachmentData value');
-						throw new Error('readAttIntoBase64 gsa.getBytes(attGr) did not return an expected attachmentData value');
+						whichStep = "Step 10";
+						gs.error(whichStep + ' in readAttIntoBase64 gsa.getBytes(attGr) did not return an expected attachmentData value');
 					} 				
 				}
 				else {
-					gs.error('attGr has an unexpected value');
+					gs.error('attGr has an unexpected value after ' + whichStep);
 					throw new Error('attGr has an unexpected value');
 
 				}
 			} else {
-				gs.error('attGr.next has an unexpected value');
+				gs.error('attGr.next has an unexpected value after ' + whichStep);
 				throw new Error('No attachment found');
 			}
 		}
 		catch(err){
-			gs.error('readAttIntoBase64 returned an unexpected response because ' + err.message);
+			gs.error(whichStep + ' in readAttIntoBase64 returned an unexpected response because ' + err.message);
 		}
 
 	},
 
+	readAttIntoBase64_NOT_ACCESSIBLE: function() {
+		var whichStep = "Step 01";
+		try {
+			var attGr = new GlideRecord('sys_attachment');
+			if(!attGr){
+				gs.error(whichStep + ' in readAttIntoBase64 new GlideRecord(sys_attachment) did not return an expected value');
+				return 'new GlideRecord for sys_attachment is broken';
+			}
+
+			whichStep = "Step 02";
+			var tableName = this.getParameter('tableName');
+			gs.info('readAttIntoBase64 tableName is: ' + tableName);
+			attGr.addQuery('table_name', tableName);
+
+			whichStep = "Step 03";
+			var recordSysId = this.getParameter('recordSysId');
+			gs.info('readAttIntoBase64 recordSysId is: ' + recordSysId);
+			attGr.addQuery('table_sys_id', recordSysId);
+
+			whichStep = "Step 04";
+			var fileName = this.getParameter('fileName');
+			gs.info('readAttIntoBase64 fileName is: ' + fileName);
+			attGr.addQuery('file_name', fileName);
+
+			whichStep = "Step 05";
+			attGr.orderByDesc('sys_updated_on');
+			attGr.query();
+
+			if (attGr.next()) {
+				whichStep = "Step 06";
+				var attSysId = attGr.getValue('sys_id');
+				if(!attSysId) {
+					gs.info('readAttIntoBase64 attSysId is null');
+					return 'No attachment sys_id found';
+				} else {
+					gs.info('readAttIntoBase64 attSysId has a value of: ' + attSysId);
+				}
+
+				whichStep = "Step 07";
+				// Use AttachmentAPI instead of GlideSysAttachment
+				var attachmentAPI = new sn_attachment.AttachmentAPI();
+				whichStep = "Step 08";
+				var base64EncodedData = attachmentAPI.getAttachmentContentBase64(attSysId);
+				whichStep = "Step 09";
+
+				if (base64EncodedData) {
+					gs.info(whichStep + ' in readAttIntoBase64 got Base64 data from AttachmentAPI');
+					return base64EncodedData; 
+				} else {
+					whichStep = "Step 10";
+					gs.error(whichStep + ' in readAttIntoBase64 failed to get Base64 data from AttachmentAPI');
+					return 'Failed to retrieve base64 data';
+				}
+			} else {
+				gs.error('No attachment found after ' + whichStep);
+				throw new Error('No attachment found');
+			}
+		}
+		catch(err){
+			gs.error(whichStep + ' in readAttIntoBase64 returned an unexpected response because ' + err.message);
+			return 'Error occurred: ' + err.message;
+		}
+	},
 
     uploadPDFglobal: function() {
 		var result = {};
@@ -1302,21 +1396,21 @@ AAIfileUploadUtilityGlobal.prototype = Object.extendsObject(global.AbstractAjaxP
     },
 
 
-    type: 'AAIfileUploadUtilityGlobal'
+    type: 'AAIfileUploadUtility'
 });
 ]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-08-13 14:52:17</sys_created_on>
         <sys_id>b01651341b449e1076f215ff034bcbdd</sys_id>
-        <sys_mod_count>27</sys_mod_count>
+        <sys_mod_count>38</sys_mod_count>
         <sys_name>AAIfileUploadUtility</sys_name>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
         <sys_update_name>sys_script_include_b01651341b449e1076f215ff034bcbdd</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-10-03 20:10:00</sys_updated_on>
+        <sys_updated_on>2024-12-20 20:59:11</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>b01651341b449e1076f215ff034bcbdd</id>
