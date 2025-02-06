@@ -1395,6 +1395,126 @@ AAIfileUploadUtility.prototype = Object.extendsObject(global.AbstractAjaxProcess
         }
     },
 
+	copyApprovalMemoPDFtoPO: function() {
+	/*
+		x_dosny_bit_procur_bit_procurement_purchase_order has a field called procurement (a)
+		x_dosny_bit_procur_bit_procurement_approval_memo has a field called procurement (b)
+		sys_id in (b) exists in table_sys_id of sys_attachment
+		when a PO has an approval memo, (a) and (b) are the same sys_id
+
+		process needs to happen on the server-side; no client code
+		this function already is guaranteed to be server-side code
+	*/
+		try{
+			var result = '';
+			var step = '01';
+			var current_procurement_value = this.getParameter('current_procurement_value');
+			step = '01a';
+			var sys_id_of_the_PO_row = this.getParameter('sys_id_of_the_PO_row');
+			if(!sys_id_of_the_PO_row || !(sys_id_of_the_PO_row.length > 0)){
+				throw new Error('copyApprovalMemoPDFtoPO does not have a value for sys_id_of_the_PO_row');
+			}
+			step = '01b';
+			// 1. Find the approval memo record that has the same 'procurement' as the current PO
+			var memoGR = new GlideRecord('x_dosny_bit_procur_bit_procurement_approval_memo');
+			memoGR.addQuery('procurement', current_procurement_value);
+			memoGR.query();
+			
+			// Check if at least one memo record exists
+			step = '02';
+			if (!memoGR.next()) {
+				// No memo record found
+				result ='No Approval Memo record found for the same procurement value.';
+				// action.setRedirectURL(current);
+				gs.info(result);
+				return JSON.stringify(result);
+			}
+			else {
+				result ='copyApprovalMemoPDFtoPO memoGR found';
+			}
+
+			// 2. Find the newest attachment on the memo record
+			step = '03';
+			var attGR = new GlideRecord('sys_attachment');
+			attGR.addQuery('table_name', 'x_dosny_bit_procur_bit_procurement_approval_memo');
+			attGR.addQuery('table_sys_id', memoGR.sys_id);
+			attGR.orderByDesc('sys_created_on');  // newest first
+			attGR.query();
+			
+			// If no attachments are found
+			step = '04';
+			if (!attGR.next()) {
+				throw new Error('A matching Approval Memo record was found, but it has no attachments.');
+			}
+			else {
+				if(!attGR.sys_id){
+					throw new Error('attGR has no sys_id property');
+				}
+				else {
+					// 3. Copy just the newest attachment over to the Purchase Order record
+					step = '05';
+					var gsa = new GlideSysAttachment();
+
+					step = '05a';
+					var attachmentSysId = attGR.sys_id;
+					step = '05b';
+					var gr = new GlideRecord('sys_attachment');
+					if (gr.get(attachmentSysId)) {
+						// step = '06a';
+						// var base64Content = gsa.getContentBase64(gr); // extracts the attachment data
+						// step = '06b';
+						// if (!base64Content || !(base64Content !== undefined)) {
+						// 	throw new Error('No attachment or nothing returned for sys_id: ' + attachmentSysId);
+						// }
+						step = '07b';
+						var source_table = 'x_dosny_bit_procur_bit_procurement_approval_memo';
+						var target_table = 'x_dosny_bit_procur_bit_procurement_purchase_order';
+						var attFileName = attGR.file_name;
+						var attMimeType = attGR.mimeType;
+						
+						gsa.copy(source_table,memoGR.sys_id, target_table,sys_id_of_the_PO_row);
+
+						// gr.table_name = target_table;
+						// gr.table_sys_id = sys_id_of_the_PO_row;
+						// gr.update();
+
+						// var attachment = new GlideSysAttachment();
+						// step = '06d';
+						// var pdfBytes = AttachmentAPI.getBytes('sys_attachment', attachmentSysId);
+						// var s = attachment.
+						// step = '07b';
+						// var target_table = 'x_dosny_bit_procur_bit_procurement_purchase_order';
+						// var attFileName = attGR.file_name;
+						// var attMimeType = attGR.mimeType;
+						// var newAttRow = new global.Attachment();
+						// step = '07c';
+						// newAttRow.write(
+						// 	target_table, // target table
+						// 	sys_id_of_the_PO_row, // target record
+						// 	attFileName,    // file name
+						// 	attMimeType,
+						// 	pdfBytes	// binary content
+						// );
+
+						// Show a success message
+						step = '09';
+						result ='Newest attachment from the Approval Memo has been copied to this Purchase Order.';
+						gs.info(result);
+						return JSON.stringify(result);
+					}
+					else {
+						throw new Error('program cannot assign a sys_attachment record to gr')
+					}
+
+				}
+			}
+		}	
+		catch(err2){
+			result ='after step ' + step + ' copyApprovalMemoPDFtoPO problem: ' + err2 + ' (' + result + ')';
+			gs.info(result);
+			return JSON.stringify(result);
+		}	
+	},
 
     type: 'AAIfileUploadUtility'
 });
@@ -1403,14 +1523,14 @@ AAIfileUploadUtility.prototype = Object.extendsObject(global.AbstractAjaxProcess
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-08-13 14:52:17</sys_created_on>
         <sys_id>b01651341b449e1076f215ff034bcbdd</sys_id>
-        <sys_mod_count>38</sys_mod_count>
+        <sys_mod_count>82</sys_mod_count>
         <sys_name>AAIfileUploadUtility</sys_name>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
         <sys_update_name>sys_script_include_b01651341b449e1076f215ff034bcbdd</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-12-20 20:59:11</sys_updated_on>
+        <sys_updated_on>2025-02-06 21:22:31</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>b01651341b449e1076f215ff034bcbdd</id>

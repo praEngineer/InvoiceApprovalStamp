@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_ui_action">
     <sys_ui_action action="INSERT_OR_UPDATE">
         <action_name>ApproveAndPaySEFappScope</action_name>
-        <active>true</active>
+        <active>false</active>
         <client>true</client>
         <client_script_v2><![CDATA[function onClick(g_form) {
 
@@ -95,11 +95,16 @@ calls Edmund Lee API to add a stamp in the PDF, and then initiate the Adobe Sign
         var signerFirstSysId = g_form.getValue('invoice_approved_by'); // first
         var signerSecondSysId = g_form.getValue('payment_authorized_by'); // second
 		var poNumberDisplayValue = g_form.getDisplayBox('invoice_for_this_po').value;
-
+		var pageToStamp = g_form.getValue('stampthesepages');
+		
 		if(!poNumberDisplayValue){
 			throw new Error('_passByteStreamToEdmund payload needs a valid PO number entry.');
 		}
-		                
+
+		if(!pageToStamp){
+			pageToStamp = '1';
+		}
+              
 		if(!signerFirstSysId && !signerSecondSysId){
 			throw new Error('_passByteStreamToEdmund payload needs two user sys_ids who approve/authorize payment.  Both are blank.');
 		}
@@ -155,8 +160,8 @@ calls Edmund Lee API to add a stamp in the PDF, and then initiate the Adobe Sign
 								"Filename": fileName,
 								"poNumber": poNumberDisplayValue,
 								"snRecordNumber": sysID,
-								"Pages": g_form.getValue('stampthesepages'), 
-								"testFlag": 'true',
+								"Pages": pageToStamp, 
+								"testFlag": 'false',
 							};
 
 							var headers = {
@@ -350,15 +355,15 @@ function reactPOapprovalStamp() {
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>46a33da1933e56909ce6bcd97bba10d3</sys_id>
-        <sys_mod_count>2</sys_mod_count>
+        <sys_mod_count>5</sys_mod_count>
         <sys_name>BIT Procurement Invoice Approve and Pay</sys_name>
         <sys_overrides/>
         <sys_package display_value="DSinvoiceApproval" source="x_dosny_dsinvoicea">a05454e41b4c1e1076f215ff034bcb30</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSinvoiceApproval">a05454e41b4c1e1076f215ff034bcb30</sys_scope>
         <sys_update_name>sys_ui_action_46a33da1933e56909ce6bcd97bba10d3</sys_update_name>
-        <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-12-30 17:57:20</sys_updated_on>
+        <sys_updated_by>clombardi</sys_updated_by>
+        <sys_updated_on>2025-01-10 23:03:39</sys_updated_on>
         <table>x_dosny_bit_procur_bit_procurement_invoices</table>
         <ui11_compatible>true</ui11_compatible>
         <ui16_compatible>false</ui16_compatible>
